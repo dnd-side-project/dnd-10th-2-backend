@@ -7,6 +7,7 @@ build/
 
 **/application-local.yml
 **/application-prod.yml
+**/application-test.yml
 
 ### IntelliJ IDEA ###
 .idea
