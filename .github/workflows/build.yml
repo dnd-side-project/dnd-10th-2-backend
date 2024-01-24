@@ -18,11 +18,15 @@ jobs:
       - name: Make application-prod.yml
         run: |
           touch src/main/resources/application-prod.yml
-          echo "${{ secrets.APPLICATION_PROD }}" > src/main/resources/application-prod.yml
+          echo "${{ secrets.APPLICATION_PROD }}" | base64 --decode > src/main/resources/application-prod.yml
       - name: Make application-test.yml
         run: |
           touch src/main/resources/application-test.yml
-          echo "${{ secrets.APPLICATION_TEST }}" > src/main/resources/application-test.yml
+          echo "${{ secrets.APPLICATION_TEST }}" | base64 --decode > src/main/resources/application-test.yml
+      - uses: actions/upload-artifact@v2
+        with:
+          name: application-test.yml
+          path: src/main/resources/application-test.yml
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:
@@ -40,4 +44,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: ./gradlew build sonar --info
+        run: ./gradlew clean build sonar --info
