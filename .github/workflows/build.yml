@@ -23,7 +23,6 @@ jobs:
         run: |
           touch src/main/resources/application-test.yml
           echo "${{ secrets.APPLICATION_TEST }}" | base64 --decode > src/main/resources/application-test.yml
-          cat src/main/resources/application-test.yml >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v2
         with:
           name: application-test.yml
