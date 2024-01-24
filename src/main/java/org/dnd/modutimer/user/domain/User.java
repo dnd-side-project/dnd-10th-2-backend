@@ -11,7 +11,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Entity
-@Table(name = "user")
+@Table(name = "users")
 @Where(clause = "is_deleted=0")
 @AttributeOverride(name = "id", column = @Column(name = "user_id"))
 public class User extends AbstractJpaEntity {
