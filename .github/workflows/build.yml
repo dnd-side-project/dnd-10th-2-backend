@@ -23,7 +23,7 @@ jobs:
         run: |
           touch src/main/resources/application-test.yml
           echo "${{ secrets.APPLICATION_TEST }}" | base64 --decode > src/main/resources/application-test.yml
-          cat src/main/resources/application-test.yml
+          echo "cat src/main/resources/application-test.yml"
       - name: Cache SonarQube packages
         uses: actions/cache@v1
         with:
