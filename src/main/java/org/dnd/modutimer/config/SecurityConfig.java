@@ -1,11 +1,12 @@
 package org.dnd.modutimer.config;
 
 
+import java.util.Collections;
 import org.dnd.modutimer.common.exception.ForbiddenError;
 import org.dnd.modutimer.common.security.CustomAuthenticationEntryPoint;
 import org.dnd.modutimer.common.security.JwtAuthenticationFilter;
-import org.dnd.modutimer.utils.FilterResponseUtils;
 import org.dnd.modutimer.user.application.UserFindService;
+import org.dnd.modutimer.utils.FilterResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -27,8 +28,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
-
 
 @Configuration
 @EnableWebSecurity
@@ -44,16 +43,20 @@ public class SecurityConfig {
     private UserFindService userUtilityService;
 
     public static final String[] PUBLIC_URLS = {
-            // swaggger url
-            "/v3/api-docs/**",
-            "/swagger-ui/**",
-            "/swagger-resources/**",
-            // open url
-            "/api/v1/users/**",
+        // swaggger url
+        "/v3/api-docs/**",
+        "/swagger-ui/**",
+        "/swagger-resources/**",
+        // open url
+        "/api/v1/users/**",
+        //h2-console
+        "/h2-console/**"
+
     };
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+        throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -68,19 +71,22 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager)
+        throws Exception {
         // CSRF 해제
         http.csrf(csrf -> csrf.disable());
 
-        // iframe 거부
+        // iframe 허용 : h2-console 사용 목적
         http.headers(headers -> headers
-                .contentSecurityPolicy(csp -> csp.policyDirectives("frame-ancestors 'none'")));
+            .frameOptions(frameOptions -> frameOptions.disable())
+        );
+
         // cors 재설정
         http.cors(cors -> cors.configurationSource(configurationSource()));
 
         // jSessionId 사용 거부 (토큰 인증 방식 사용)
         http.sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         // form 로그인 해제 (UsernamePasswordAuthenticationFilter 비활성화)
         http.formLogin(form -> form.disable());
@@ -89,23 +95,25 @@ public class SecurityConfig {
         http.httpBasic(httpBasic -> httpBasic.disable());
 
         // JwtAuthenticationFilter 추가
-        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager, userUtilityService);
+        JwtAuthenticationFilter jwtAuthenticationFilter = new JwtAuthenticationFilter(authenticationManager,
+            userUtilityService);
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // 인증 실패, 권한 실패 처리
         http.exceptionHandling(exception -> exception
-                .authenticationEntryPoint(authenticationEntryPoint()) // 인증 실패 처리
-                .accessDeniedHandler(((request, response, accessDeniedException) -> {
-                    // 접근 거부 처리
-                    FilterResponseUtils.forbidden(response, new ForbiddenError(
-                            ForbiddenError.ErrorCode.ROLE_BASED_ACCESS_ERROR,
-                            Collections.singletonMap("access", "Access is denied")
-                    ));
-                })));
+            .authenticationEntryPoint(authenticationEntryPoint()) // 인증 실패 처리
+            .accessDeniedHandler(((request, response, accessDeniedException) -> {
+                // 접근 거부 처리
+                FilterResponseUtils.forbidden(response, new ForbiddenError(
+                    ForbiddenError.ErrorCode.ROLE_BASED_ACCESS_ERROR,
+                    Collections.singletonMap("access", "Access is denied")
+                ));
+            })));
 
         // 인증, 권한 필터 설정
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_URLS).permitAll() // 인증 없이 접근 허용
+
 //                .anyRequest().authenticated()
                 .anyRequest().authenticated()
         );

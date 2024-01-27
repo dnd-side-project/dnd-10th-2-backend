@@ -1,7 +1,13 @@
 package org.dnd.modutimer.timer.domain;
 
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +20,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @Table(name = "timer")
 @AttributeOverride(name = "id", column = @Column(name = "timer_id"))
-@Where(clause = "is_deleted=0") // 삭제가 되지 않는 것만 조회
+@Where(clause = "is_deleted=false") // 삭제가 되지 않는 것만 조회
 public class Timer extends AbstractJpaEntity {
 
     @Enumerated(EnumType.STRING)
