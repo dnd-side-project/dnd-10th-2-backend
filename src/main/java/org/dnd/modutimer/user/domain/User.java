@@ -1,6 +1,11 @@
 package org.dnd.modutimer.user.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +17,7 @@ import org.hibernate.annotations.Where;
 @Getter
 @Entity
 @Table(name = "member")
-@Where(clause = "is_deleted=0")
+@Where(clause = "is_deleted=false")
 @AttributeOverride(name = "id", column = @Column(name = "user_id"))
 public class User extends AbstractJpaEntity {
 
