@@ -1,0 +1,18 @@
+version: '3.7'
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment: # 환경 변수 설정
+      - SPRING_DATASOURCE_URL=jdbc:h2:file:/usr/src/app/data/mydb;DB_CLOSE_ON_EXIT=FALSE
+    platform: linux/amd64
+    ports:
+      - "8080:8080"
+    # h2data 볼륨을 컨테이너 내부의 /usr/src/app/data에 매핑
+    volumes:
+      - h2data:/usr/src/app/data
+
+# 볼륨 정의 (기본 설정 사용)
+volumes:
+  h2data:
