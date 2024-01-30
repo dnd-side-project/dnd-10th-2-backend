@@ -29,6 +29,6 @@ jobs:
     - name: Build, tag, and push image to Amazon ECR
       run: |
         docker build -t dnd-10th-2-backend-springboot .
-        docker tag dnd-10th-2-backend-springboot:${{ env.RELEASE_VERSION }} public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:${{ env.RELEASE_VERSION }}
-        docker push public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:${{ env.RELEASE_VERSION }}
+        docker tag dnd-10th-2-backend-springboot:latest public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:latest
+        docker push public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:latest
         
