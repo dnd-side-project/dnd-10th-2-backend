@@ -1,0 +1,32 @@
+name: Deploy to ECR
+
+on:
+  push:
+    tags:
+      - v*
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v2
+    - name: Set RELEASE_VERSION
+      run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-northeast-2
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+    - name: Build, tag, and push image to Amazon ECR
+      run: |
+        docker build -t dnd-10th-2-backend-springboot .
+        docker tag dnd-10th-2-backend-springboot:${{ env.RELEASE_VERSION }} public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:${{ env.RELEASE_VERSION }}
+        docker push public.ecr.aws/g8f7f0e2/dnd-10th-2-backend:${{ env.RELEASE_VERSION }}
+        
