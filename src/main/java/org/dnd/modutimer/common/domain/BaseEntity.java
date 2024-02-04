@@ -23,7 +23,7 @@ public class BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
 
-    @Column(name = "isDeleted", nullable = false, columnDefinition = "BIT default 0")
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "BIT default 0")
     protected Boolean isDeleted = false;
 
     @CreatedDate
