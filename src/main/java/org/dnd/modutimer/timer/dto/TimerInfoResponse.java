@@ -10,6 +10,7 @@ import org.dnd.modutimer.timer.domain.TimerStatus;
 @Getter
 @Setter
 public class TimerInfoResponse {
+
     @Schema(description = "타이머 id", example = "12L")
     private Long id;
     @Schema(description = "타이머 상태", example = "STOPPED")
@@ -21,10 +22,10 @@ public class TimerInfoResponse {
 
     @Builder
     public TimerInfoResponse(
-            final Long id,
-            final TimerStatus status,
-            final long startTime,
-            final long endTime
+        final Long id,
+        final TimerStatus status,
+        final long startTime,
+        final long endTime
     ) {
         this.id = id;
         this.status = status;
@@ -34,11 +35,11 @@ public class TimerInfoResponse {
 
     public static TimerInfoResponse from(Timer timer) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
         return TimerInfoResponse.builder()
-                .id(timer.getId())
-                .status(timer.getStatus())
-                .startTime(timer.getDuration().getStartTime())
-                .endTime(timer.getDuration().getEndTime())
-                .build();
+            .id(timer.getId())
+            .status(timer.getStatus())
+            .startTime(timer.getDuration().getStartTime())
+            .endTime(timer.getDuration().getEndTime())
+            .build();
     }
 }
 

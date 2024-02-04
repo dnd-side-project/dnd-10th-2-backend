@@ -15,6 +15,7 @@ import java.util.Map;
 @Aspect
 @Component
 public class GlobalValidationHandler {
+
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web.bind.annotation.PutMapping)")
     public void postOrPutMapping() { // Post 또는 Put 요청시 공통 로직 처리(AOP)
     }

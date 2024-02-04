@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus;
 import java.util.Map;
 
 /**
- * HTTP 상태 코드 500 (Internal Server Error) : 내부 서버 오류
- * 서버에 에러가 발생할 때 발생합니다.
+ * HTTP 상태 코드 500 (Internal Server Error) : 내부 서버 오류 서버에 에러가 발생할 때 발생합니다.
  */
 @Getter
 public class InternalServerError extends ApiException {

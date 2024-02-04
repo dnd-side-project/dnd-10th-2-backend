@@ -7,8 +7,7 @@ import org.springframework.http.HttpStatus;
 import java.util.Map;
 
 /**
- * HTTP 상태 코드 404 (Not Found)
- * 리소스 찾을 수 없을 때 발생합니다.
+ * HTTP 상태 코드 404 (Not Found) 리소스 찾을 수 없을 때 발생합니다.
  */
 @Getter
 public class NotFoundError extends ApiException {

@@ -6,7 +6,7 @@ import org.dnd.modutimer.common.exception.ForbiddenError;
 import org.dnd.modutimer.common.security.CustomAuthenticationEntryPoint;
 import org.dnd.modutimer.common.security.JwtAuthenticationFilter;
 import org.dnd.modutimer.user.application.UserFindService;
-import org.dnd.modutimer.utils.FilterResponseUtils;
+import org.dnd.modutimer.common.utils.FilterResponseUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

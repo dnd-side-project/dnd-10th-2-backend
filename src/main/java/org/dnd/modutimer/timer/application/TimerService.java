@@ -1,6 +1,7 @@
 package org.dnd.modutimer.timer.application;
 
-import jakarta.persistence.EntityNotFoundException;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.dnd.modutimer.common.exception.NotFoundError;
 import org.dnd.modutimer.timer.domain.Duration;
@@ -10,13 +11,11 @@ import org.dnd.modutimer.timer.dto.TimerCreateRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor // final 의존성 주입
 @Transactional // DB 변경 작업에 사용
 public class TimerService {
+
     private final TimerRepository timerRepository;
 
     public Timer createTimer(TimerCreateRequest createDto) {
@@ -28,8 +27,8 @@ public class TimerService {
     @Transactional(readOnly = true)
     public Timer findById(Long id) {
         return timerRepository.findById(id)
-                .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                        Collections.singletonMap("TimerId", "Timer not found")));
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("TimerId", "Timer not found")));
     }
 
     @Transactional(readOnly = true)
@@ -54,9 +53,9 @@ public class TimerService {
 
     public void deleteTimer(Long timerId) {
         Timer timer = timerRepository.findById(timerId)
-                .orElseThrow(() ->
-                        new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                        Collections.singletonMap("TimerId", "Timer not found")));
+            .orElseThrow(() ->
+                new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                    Collections.singletonMap("TimerId", "Timer not found")));
         timer.delete(); // soft 삭제 로직 호출
     }
 }

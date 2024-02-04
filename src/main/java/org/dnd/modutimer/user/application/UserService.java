@@ -23,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Service
 public class UserService {
+
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
@@ -35,28 +36,29 @@ public class UserService {
             userRepository.save(userRegisterRequest.toEntity(encodedPassword));
         } catch (Exception e) {
             throw new InternalServerError(
-                    InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
-                    Collections.singletonMap("error", "Unknown server error occurred."));
+                InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("error", "Unknown server error occurred."));
         }
     }
 
     public void checkSameEmail(String email) {
         Optional<User> memberOptional = userRepository.findByEmail(email);
         if (memberOptional.isPresent()) {
-            throw new BadRequestError(BadRequestError.ErrorCode.DUPLICATE_RESOURCE, Collections.singletonMap("Email", "Duplicate email exist : " + email));
+            throw new BadRequestError(BadRequestError.ErrorCode.DUPLICATE_RESOURCE,
+                Collections.singletonMap("Email", "Duplicate email exist : " + email));
         }
     }
 
     public UserLoginResponse login(UserLoginRequest requestDTO) {
         User user = userRepository.findByEmail(requestDTO.getEmail()).orElseThrow(
-                () -> new NotFoundError(
-                        NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                        Collections.singletonMap("Email", "email not found : " + requestDTO.getEmail())
-                ));
+            () -> new NotFoundError(
+                NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("Email", "email not found : " + requestDTO.getEmail())
+            ));
         if (!passwordEncoder.matches(requestDTO.getPassword(), user.getPassword())) {
             throw new UnAuthorizedError(
-                    UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED,
-                    Collections.singletonMap("Password", "Wrong password")
+                UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED,
+                Collections.singletonMap("Password", "Wrong password")
             );
         }
 
@@ -65,7 +67,6 @@ public class UserService {
 
         return new UserLoginResponse(jwt, redirectUrl);
     }
-
 
 //    public UserInfoResponse findUser(User user) {
 //        User findUser = userRepository.findById(user.getId())

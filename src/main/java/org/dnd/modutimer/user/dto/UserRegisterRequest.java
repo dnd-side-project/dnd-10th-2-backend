@@ -12,6 +12,7 @@ import org.dnd.modutimer.user.domain.UserRole;
 @Getter
 @Setter
 public class UserRegisterRequest {
+
     @NotBlank(message = "email is required.")
     @Pattern(regexp = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "Please enter a valid email address")
     @Schema(description = "사용자 이메일", nullable = false, example = "green12@gmail.com")
@@ -29,13 +30,12 @@ public class UserRegisterRequest {
     private String name;
 
 
-
     public User toEntity(String encodedPassword) {
         return User.builder()
-                .email(email)
-                .password(encodedPassword)
-                .name(name)
-                .role(UserRole.ROLE_USER) // 기본적으로 User로 생성
-                .build();
+            .email(email)
+            .password(encodedPassword)
+            .name(name)
+            .role(UserRole.ROLE_USER) // 기본적으로 User로 생성
+            .build();
     }
 }

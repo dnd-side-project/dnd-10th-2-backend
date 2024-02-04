@@ -1,7 +1,7 @@
 package org.dnd.modutimer.common.exception;
 
 import lombok.Getter;
-import org.dnd.modutimer.utils.ApiUtils;
+import org.dnd.modutimer.common.utils.ApiUtils;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;
@@ -22,13 +22,14 @@ public abstract class ApiException extends RuntimeException {
 
     public ApiUtils.ApiResult<?> body() {
         return ApiUtils.error(
-                String.valueOf(this.getStatus().value()),
-                String.valueOf(this.errorCode.getCode()),
-                this.errors
+            String.valueOf(this.getStatus().value()),
+            String.valueOf(this.errorCode.getCode()),
+            this.errors
         );
     }
 
     public interface ErrorCode {
+
         int getCode();
 
         String getMessage();

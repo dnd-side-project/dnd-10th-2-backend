@@ -13,6 +13,7 @@ import java.util.Date;
 
 @Component
 public class JWTProvider {
+
     public static final Long EXP = 1000L * 60 * 60 * 48; // 48시간
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER = "Authorization";
@@ -20,11 +21,11 @@ public class JWTProvider {
 
     public static String create(User user) {
         String jwt = JWT.create()
-                .withSubject(user.getEmail())
-                .withExpiresAt(new Date(System.currentTimeMillis() + EXP))
-                .withClaim("id", user.getId())
-                .withClaim("role", user.getRole().name())
-                .sign(Algorithm.HMAC512(SECRET));
+            .withSubject(user.getEmail())
+            .withExpiresAt(new Date(System.currentTimeMillis() + EXP))
+            .withClaim("id", user.getId())
+            .withClaim("role", user.getRole().name())
+            .sign(Algorithm.HMAC512(SECRET));
 
         return TOKEN_PREFIX + jwt;
     }
@@ -32,7 +33,7 @@ public class JWTProvider {
     public static DecodedJWT verify(String jwt) throws SignatureVerificationException, TokenExpiredException {
         jwt = jwt.replace(TOKEN_PREFIX, "");
         DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC512(SECRET))
-                .build().verify(jwt);
+            .build().verify(jwt);
 
         return decodedJWT;
     }

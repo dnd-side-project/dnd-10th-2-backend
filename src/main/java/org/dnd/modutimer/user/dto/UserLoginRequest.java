@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserLoginRequest {
+
     @NotBlank(message = "email is required.")
     @Pattern(regexp = "^[\\w._%+-]+@[\\w.-]+\\.[a-zA-Z]{2,6}$", message = "Please enter a valid email address.")
     @Schema(description = "사용자 이메일", nullable = false, example = "green12@gmail.com")

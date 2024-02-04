@@ -16,7 +16,7 @@ import org.dnd.modutimer.user.dto.EmailCheckRequest;
 import org.dnd.modutimer.user.dto.UserLoginRequest;
 import org.dnd.modutimer.user.dto.UserLoginResponse;
 import org.dnd.modutimer.user.dto.UserRegisterRequest;
-import org.dnd.modutimer.utils.ApiUtils;
+import org.dnd.modutimer.common.utils.ApiUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,9 +34,9 @@ public class UserController {
     @PostMapping("/check")
     @Operation(summary = "이메일 중복 검사", description = "입력받은 이메일 주소가 이미 사용 중인지 확인한다.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "이메일 사용 가능"),
-            @ApiResponse(responseCode = "400", description = "중복된 이메일 존재 또는 잘못된 요청", content = @Content(schema = @Schema(implementation = BadRequestError.class))),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = InternalServerError.class)))
+        @ApiResponse(responseCode = "200", description = "이메일 사용 가능"),
+        @ApiResponse(responseCode = "400", description = "중복된 이메일 존재 또는 잘못된 요청", content = @Content(schema = @Schema(implementation = BadRequestError.class))),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = InternalServerError.class)))
     })
     public ResponseEntity<?> checkEmail(@RequestBody @Valid EmailCheckRequest emailCheckDTO) {
         userService.checkSameEmail(emailCheckDTO.getEmail());
@@ -46,9 +46,9 @@ public class UserController {
 
     @PostMapping
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "유저 등록 성공"),
-            @ApiResponse(responseCode = "400", description = "중복된 이메일 존재 또는 잘못된 요청", content = @Content(schema = @Schema(implementation = BadRequestError.class))),
-            @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = InternalServerError.class)))
+        @ApiResponse(responseCode = "200", description = "유저 등록 성공"),
+        @ApiResponse(responseCode = "400", description = "중복된 이메일 존재 또는 잘못된 요청", content = @Content(schema = @Schema(implementation = BadRequestError.class))),
+        @ApiResponse(responseCode = "500", description = "서버 내부 오류", content = @Content(schema = @Schema(implementation = InternalServerError.class)))
     })
     @Operation(summary = "유저 등록", description = "새롭게 유저를 등록한다.")
     public ResponseEntity<?> registerUser(@RequestBody @Valid UserRegisterRequest requestDTO) {

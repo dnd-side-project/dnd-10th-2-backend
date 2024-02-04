@@ -12,7 +12,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.dnd.modutimer.user.application.AbstractJpaEntity;
+import org.dnd.modutimer.common.domain.AuditableEntity;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -21,7 +21,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "timer")
 @AttributeOverride(name = "id", column = @Column(name = "timer_id"))
 @Where(clause = "is_deleted=false") // 삭제가 되지 않는 것만 조회
-public class Timer extends AbstractJpaEntity {
+public class Timer extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     private TimerStatus status;
