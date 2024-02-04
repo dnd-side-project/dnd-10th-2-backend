@@ -10,7 +10,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.dnd.modutimer.user.application.AbstractJpaEntity;
+import org.dnd.modutimer.common.domain.BaseEntity;
 import org.hibernate.annotations.Where;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -19,7 +19,7 @@ import org.hibernate.annotations.Where;
 @Table(name = "member")
 @Where(clause = "is_deleted=false")
 @AttributeOverride(name = "id", column = @Column(name = "user_id"))
-public class User extends AbstractJpaEntity {
+public class User extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 30, nullable = false)
