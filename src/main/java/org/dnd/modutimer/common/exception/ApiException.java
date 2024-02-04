@@ -1,7 +1,7 @@
 package org.dnd.modutimer.common.exception;
 
 import lombok.Getter;
-import org.dnd.modutimer.utils.ApiUtils;
+import org.dnd.modutimer.common.utils.ApiUtils;
 import org.springframework.http.HttpStatus;
 
 import java.util.Map;

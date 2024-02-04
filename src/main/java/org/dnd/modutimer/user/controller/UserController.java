@@ -16,7 +16,7 @@ import org.dnd.modutimer.user.dto.EmailCheckRequest;
 import org.dnd.modutimer.user.dto.UserLoginRequest;
 import org.dnd.modutimer.user.dto.UserLoginResponse;
 import org.dnd.modutimer.user.dto.UserRegisterRequest;
-import org.dnd.modutimer.utils.ApiUtils;
+import org.dnd.modutimer.common.utils.ApiUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

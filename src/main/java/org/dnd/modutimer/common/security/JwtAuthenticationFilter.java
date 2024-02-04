@@ -14,7 +14,7 @@ import org.dnd.modutimer.common.exception.BadRequestError;
 import org.dnd.modutimer.common.exception.InternalServerError;
 import org.dnd.modutimer.common.exception.UnAuthorizedError;
 import org.dnd.modutimer.user.domain.User;
-import org.dnd.modutimer.utils.ApiUtils;
+import org.dnd.modutimer.common.utils.ApiUtils;
 import org.dnd.modutimer.user.application.UserFindService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
