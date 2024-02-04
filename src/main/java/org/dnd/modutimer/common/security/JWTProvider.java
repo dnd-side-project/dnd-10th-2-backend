@@ -6,10 +6,10 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import org.dnd.modutimer.user.domain.User;
-import org.springframework.stereotype.Component;
-
 import java.util.Date;
+import org.dnd.modutimer.user.domain.User;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 @Component
 public class JWTProvider {
@@ -17,6 +17,8 @@ public class JWTProvider {
     public static final Long EXP = 1000L * 60 * 60 * 48; // 48시간
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER = "Authorization";
+
+    @Value("${jwt.secret}")
     public static final String SECRET = "MySecretKey";
 
     public static String create(User user) {
