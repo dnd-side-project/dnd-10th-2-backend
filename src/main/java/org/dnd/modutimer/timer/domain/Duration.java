@@ -11,6 +11,7 @@ import java.util.Objects;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Duration { // VO(값 객체)
+
     private long startTime;
     private long endTime;
 
@@ -28,8 +29,12 @@ public class Duration { // VO(값 객체)
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Duration)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Duration)) {
+            return false;
+        }
         Duration duration = (Duration) o;
         return startTime == duration.startTime && endTime == duration.endTime;
     }
@@ -42,10 +47,10 @@ public class Duration { // VO(값 객체)
     @Override
     public String toString() {
         return "Duration{" +
-                "startTime=" + startTime +
-                ", endTime=" + endTime +
-                ", durationInMillis=" + toMillis() +
-                '}';
+            "startTime=" + startTime +
+            ", endTime=" + endTime +
+            ", durationInMillis=" + toMillis() +
+            '}';
     }
 }
 

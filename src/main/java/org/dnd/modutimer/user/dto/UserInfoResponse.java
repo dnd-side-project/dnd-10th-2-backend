@@ -9,6 +9,7 @@ import org.dnd.modutimer.user.domain.UserRole;
 @Getter
 @Setter
 public class UserInfoResponse {
+
     @Schema(description = "사용자 id", nullable = false, example = "12")
     private long id;
     @Schema(description = "사용자 이름", nullable = false, example = "green12")
@@ -28,10 +29,10 @@ public class UserInfoResponse {
 
     public static UserInfoResponse from(User user) {
         return new UserInfoResponse(
-                user.getId(),
-                user.getName(),
-                user.getEmail(),
-                user.getRole()
+            user.getId(),
+            user.getName(),
+            user.getEmail(),
+            user.getRole()
         );
     }
 }

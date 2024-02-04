@@ -13,7 +13,7 @@ public class CustomErrorAttributes extends DefaultErrorAttributes {
 
     @Override
     public Map<String, Object> getErrorAttributes(
-            WebRequest webRequest, ErrorAttributeOptions options) {
+        WebRequest webRequest, ErrorAttributeOptions options) {
         Map<String, Object> defaultErrorAttributes = super.getErrorAttributes(webRequest, options);
 
         Map<String, Object> customErrorAttributes = new LinkedHashMap<>();

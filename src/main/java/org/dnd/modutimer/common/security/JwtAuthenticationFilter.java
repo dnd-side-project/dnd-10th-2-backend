@@ -39,7 +39,8 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+        throws IOException, ServletException {
         String jwt = request.getHeader(JWTProvider.HEADER);
 
         try {
@@ -51,26 +52,30 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
                 CustomUserDetails myUserDetails = new CustomUserDetails(user);
                 Authentication authentication =
-                        new UsernamePasswordAuthenticationToken(
-                                myUserDetails,
-                                null,
-                                myUserDetails.getAuthorities()
-                        );
+                    new UsernamePasswordAuthenticationToken(
+                        myUserDetails,
+                        null,
+                        myUserDetails.getAuthorities()
+                    );
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (SignatureVerificationException sve) {
-            handleException(response, new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION, Collections.singletonMap("defaultMessage", "Invalid token signature")));
+            handleException(response, new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("defaultMessage", "Invalid token signature")));
             return;
         } catch (TokenExpiredException tee) {
-            handleException(response, new UnAuthorizedError(UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED, Collections.singletonMap("defaultMessage", "JWT has expired")));
+            handleException(response, new UnAuthorizedError(UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED,
+                Collections.singletonMap("defaultMessage", "JWT has expired")));
             return;
         } catch (Exception e) {
-            handleException(response, new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR, Collections.singletonMap("defaultMessage", "An unexpected error occurred")));
+            handleException(response, new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("defaultMessage", "An unexpected error occurred")));
             return;
         }
 
         chain.doFilter(request, response);
     }
+
     // 인증이 필요하지 않는 url
     private boolean isNonProtectedUrl(HttpServletRequest request) {
         for (String urlPattern : PUBLIC_URLS) {

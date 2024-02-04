@@ -16,10 +16,11 @@ import java.util.Collections;
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+    public void commence(HttpServletRequest request, HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
         UnAuthorizedError errorResponse = new UnAuthorizedError(
-                UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED,
-                Collections.singletonMap("auth", "Not authenticated")
+            UnAuthorizedError.ErrorCode.AUTHENTICATION_FAILED,
+            Collections.singletonMap("auth", "Not authenticated")
         );
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);

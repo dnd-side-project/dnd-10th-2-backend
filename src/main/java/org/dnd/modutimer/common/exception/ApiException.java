@@ -22,13 +22,14 @@ public abstract class ApiException extends RuntimeException {
 
     public ApiUtils.ApiResult<?> body() {
         return ApiUtils.error(
-                String.valueOf(this.getStatus().value()),
-                String.valueOf(this.errorCode.getCode()),
-                this.errors
+            String.valueOf(this.getStatus().value()),
+            String.valueOf(this.errorCode.getCode()),
+            this.errors
         );
     }
 
     public interface ErrorCode {
+
         int getCode();
 
         String getMessage();

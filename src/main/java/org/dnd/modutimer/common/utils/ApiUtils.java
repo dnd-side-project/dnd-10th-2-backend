@@ -9,8 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * API 응답을 생성하는데 사용되는 유틸리티 메서드와 내부 클래스 제공
- * 성공적인 API 응답과 에러 응답을 생성하는 정적 메서드를 포함
+ * API 응답을 생성하는데 사용되는 유틸리티 메서드와 내부 클래스 제공 성공적인 API 응답과 에러 응답을 생성하는 정적 메서드를 포함
  */
 
 public class ApiUtils {
@@ -27,6 +26,7 @@ public class ApiUtils {
     @Setter
     @AllArgsConstructor
     public static class ApiResult<T> {
+
         private final boolean success;
         private final T response;
         private final ApiError error;
@@ -46,6 +46,7 @@ public class ApiUtils {
     @Setter
     @AllArgsConstructor
     public static class ApiError {
+
         private final String status;
         private final String code;
         private final Map<String, String> message;

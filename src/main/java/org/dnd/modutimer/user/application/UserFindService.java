@@ -20,7 +20,7 @@ public class UserFindService {
 
     public User getUserById(Long id) throws Exception {
         return userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                        Collections.singletonMap("User", "User not found")));
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("User", "User not found")));
     }
 }

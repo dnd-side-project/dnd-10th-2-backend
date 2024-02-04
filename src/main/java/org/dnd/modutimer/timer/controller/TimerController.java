@@ -3,25 +3,30 @@ package org.dnd.modutimer.timer.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.modutimer.timer.application.TimerService;
 import org.dnd.modutimer.timer.domain.Timer;
 import org.dnd.modutimer.timer.dto.TimerCreateRequest;
 import org.dnd.modutimer.timer.dto.TimerInfoResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Tag(name = "Timer 컨트롤러", description = "Timer API입니다.")
 @RestController
 @RequestMapping("/api/v1/timers")
 @RequiredArgsConstructor
 public class TimerController {
+
     private final TimerService timerService;
 
     @GetMapping
@@ -29,9 +34,9 @@ public class TimerController {
     public ResponseEntity getTimers() {
         // TODO : 해당 User의 타이머만 조회하도록 수정
         List<TimerInfoResponse> timerInfoResponseList = timerService.findAll()
-                .stream()
-                .map(TimerInfoResponse::from)
-                .collect(Collectors.toList());
+            .stream()
+            .map(TimerInfoResponse::from)
+            .collect(Collectors.toList());
 
         return ResponseEntity.ok().body(timerInfoResponseList);
     }
@@ -52,9 +57,9 @@ public class TimerController {
 
         Timer savedTimer = timerService.createTimer(timerCreateRequest);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(savedTimer.getId())
-                .toUri(); // http://localhost:8080/api/v1/timers/123
+            .path("/{id}")
+            .buildAndExpand(savedTimer.getId())
+            .toUri(); // http://localhost:8080/api/v1/timers/123
 
         return ResponseEntity.created(location).build(); // 201(Created) 상태코드 + URI 반환
     }
