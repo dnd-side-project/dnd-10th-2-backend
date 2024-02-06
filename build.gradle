@@ -3,6 +3,7 @@ plugins {
     id 'org.springframework.boot' version '3.2.1'
     id 'io.spring.dependency-management' version '1.1.4'
     id "org.sonarqube" version "4.0.0.2929"
+    id 'checkstyle'
 }
 
 group = 'org.dnd'
@@ -56,4 +57,9 @@ sonar {
     properties {
         property "sonar.projectKey", "dnd-10th-2-backend"
     }
+}
+
+checkstyle {
+    toolVersion '8.45'
+    configFile file("${project.rootDir}/config/checkstyle-config.xml")
 }
