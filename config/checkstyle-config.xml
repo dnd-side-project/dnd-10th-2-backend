@@ -41,13 +41,6 @@
   <module name="FileTabCharacter">
     <property name="eachLine" value="true"/>
   </module>
-
-  <module name="LineLength">
-    <property name="fileExtensions" value="java"/>
-    <property name="max" value="120"/>
-    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
-  </module>
-
   <module name="TreeWalker">
     <module name="OuterTypeFilename"/>
     <module name="IllegalTokenText">
@@ -378,5 +371,10 @@
       <!-- The check is suppressed in the next line of code after the comment -->
       <property name="influenceFormat" value="1"/>
     </module>
+  </module>
+  <module name="LineLength">
+    <!--    <property name="fileExtensions" value="java"/>-->
+    <property name="max" value="120"/>
+    <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
   </module>
 </module>
