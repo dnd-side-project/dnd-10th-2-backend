@@ -15,8 +15,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
-#      - name: Run Checkstyle
-#        run: ./gradlew checkstyleMain checkstyleTest
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest
       - name: Make application-prod.yml
         run: |
           touch src/main/resources/application-prod.yml
