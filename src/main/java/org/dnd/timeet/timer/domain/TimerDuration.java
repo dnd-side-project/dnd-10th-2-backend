@@ -10,12 +10,12 @@ import java.util.Objects;
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Duration { // VO(값 객체)
+public class TimerDuration { // VO(값 객체)
 
     private long startTime;
     private long endTime;
 
-    public Duration(long startTime, long endTime) {
+    public TimerDuration(long startTime, long endTime) {
         if (endTime < startTime) {
             throw new IllegalArgumentException("종료 시간은 시작 시간보다 뒤여야 합니다.");
         }
@@ -32,11 +32,11 @@ public class Duration { // VO(값 객체)
         if (this == o) {
             return true;
         }
-        if (!(o instanceof Duration)) {
+        if (!(o instanceof TimerDuration)) {
             return false;
         }
-        Duration duration = (Duration) o;
-        return startTime == duration.startTime && endTime == duration.endTime;
+        TimerDuration timerDuration = (TimerDuration) o;
+        return startTime == timerDuration.startTime && endTime == timerDuration.endTime;
     }
 
     @Override

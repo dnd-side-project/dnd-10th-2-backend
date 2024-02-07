@@ -38,8 +38,8 @@ public class TimerInfoResponse {
         return TimerInfoResponse.builder()
             .id(timer.getId())
             .status(timer.getStatus())
-            .startTime(timer.getDuration().getStartTime())
-            .endTime(timer.getDuration().getEndTime())
+            .startTime(timer.getTimerDuration().getStartTime())
+            .endTime(timer.getTimerDuration().getEndTime())
             .build();
     }
 }

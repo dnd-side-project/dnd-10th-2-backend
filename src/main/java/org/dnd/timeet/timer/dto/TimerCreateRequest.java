@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.dnd.timeet.timer.domain.Duration;
+import org.dnd.timeet.timer.domain.TimerDuration;
 import org.dnd.timeet.timer.domain.Timer;
 import org.dnd.timeet.timer.domain.TimerStatus;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,7 +36,7 @@ public class TimerCreateRequest {
 
     public Timer toEntity() {
         return Timer.builder()
-            .duration(new Duration(startTime.toInstant(ZoneOffset.UTC).toEpochMilli(),
+            .timerDuration(new TimerDuration(startTime.toInstant(ZoneOffset.UTC).toEpochMilli(),
                 endTime.toInstant(ZoneOffset.UTC).toEpochMilli()))
             .status(this.status)
             .build();

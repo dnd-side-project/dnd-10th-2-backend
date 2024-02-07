@@ -50,7 +50,8 @@ public class SecurityConfig {
         // open url
         "/api/v1/users/**",
         //h2-console
-        "/h2-console/**"
+        "/h2-console/**",
+        "/api/meetings/**",
 
     };
 
