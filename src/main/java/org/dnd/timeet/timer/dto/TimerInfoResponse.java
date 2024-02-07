@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.dnd.timeet.timer.domain.Timer;
 import org.dnd.timeet.timer.domain.TimerStatus;
 
+@Schema(description = "타이머 정보 응답")
 @Getter
 @Setter
 public class TimerInfoResponse {
@@ -42,4 +43,3 @@ public class TimerInfoResponse {
             .build();
     }
 }
-

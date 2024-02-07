@@ -13,6 +13,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
+
+@Schema(description = "타이머 생성 요청")
 @Getter
 @Setter
 @NoArgsConstructor
