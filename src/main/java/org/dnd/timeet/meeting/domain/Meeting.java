@@ -43,7 +43,7 @@ public class Meeting extends AuditableEntity {
     // 실제 소요 시간, 초기값 null
     private LocalTime totalActualDuration;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = true, length = 255)
     private String location;
 
     @Column(nullable = true, length = 1000)
@@ -53,14 +53,18 @@ public class Meeting extends AuditableEntity {
     @Column(nullable = false, length = 50)
     private MeetingStatus status = MeetingStatus.SCHEDULED;
 
+    @Column(nullable = false)
+    private Integer imgNum;
+
     @Builder
     public Meeting(String title, LocalDateTime startTime, LocalTime totalEstimatedDuration, String location,
-                   String description) {
+        String description, Integer imgNum) {
         this.title = title;
         this.startTime = startTime;
         this.totalEstimatedDuration = totalEstimatedDuration;
         this.location = location;
-        this.description = description; // 입력한 값이 없을 경우 null
+        this.description = description;
+        this.imgNum = imgNum;
     }
 
 

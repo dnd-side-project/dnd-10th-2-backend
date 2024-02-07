@@ -22,7 +22,6 @@ public class MeetingCreateRequest {
     @Schema(description = "회의 제목", example = "2차 업무 회의")
     private String title;
 
-    @NotNull(message = "회의 장소는 반드시 입력되어야 합니다")
     @Schema(description = "회의 장소", example = "스타벅스 강남역점")
     private String location;
 
