@@ -1,13 +1,14 @@
 package org.dnd.timeet.oauth.application;
 
+import java.util.Collections;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.security.CustomUserDetails;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.member.domain.MemberRepository;
 import org.dnd.timeet.member.domain.MemberRole;
 import org.dnd.timeet.oauth.OAuth2Provider;
-import org.dnd.timeet.oauth.exception.OAuthProcessingException;
 import org.dnd.timeet.oauth.info.OAuth2UserInfo;
 import org.dnd.timeet.oauth.info.OAuth2UserInfoFactory;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -45,7 +46,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             oauth2User.getAttributes());
 
         if (userInfo.getId() == null) {
-            throw new OAuthProcessingException("ID not found from OAuth2 provider");
+            throw new InternalServerError(
+                InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("Id", "Id not found from OAuth2 provider"));
         }
 
         Optional<Member> userOptional = memberRepository.findByOauthId(userInfo.getId());
@@ -54,7 +57,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (userOptional.isPresent()) {
             member = userOptional.get();
             if (oauth2Provider != member.getProvider()) {
-                throw new OAuthProcessingException("Wrong Match Auth Provider");
+                throw new InternalServerError(
+                    InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
+                    Collections.singletonMap("Provider", "Wrong Match Auth Provider"));
             }
 
         } else {
