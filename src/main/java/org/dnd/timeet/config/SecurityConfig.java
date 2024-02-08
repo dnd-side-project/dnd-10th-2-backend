@@ -2,11 +2,16 @@ package org.dnd.timeet.config;
 
 
 import java.util.Collections;
+import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.ForbiddenError;
+import org.dnd.timeet.common.security.CookieAuthorizationRequestRepository;
 import org.dnd.timeet.common.security.CustomAuthenticationEntryPoint;
 import org.dnd.timeet.common.security.JwtAuthenticationFilter;
-import org.dnd.timeet.user.application.UserFindService;
 import org.dnd.timeet.common.utils.FilterResponseUtils;
+import org.dnd.timeet.member.application.MemberFindService;
+import org.dnd.timeet.oauth.application.CustomOAuth2UserService;
+import org.dnd.timeet.oauth.handler.OAuth2AuthenticationFailureHandler;
+import org.dnd.timeet.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +36,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${frontend.localurl}")
@@ -40,7 +46,15 @@ public class SecurityConfig {
     private String prodfronturl;
 
     @Autowired
-    private UserFindService userUtilityService;
+    private MemberFindService userUtilityService;
+
+    private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final CookieAuthorizationRequestRepository cookieAuthorizationRequestRepository;
+
+    private final OAuth2AuthenticationSuccessHandler OAuth2AuthenticationSuccessHandler;
+
+    private final OAuth2AuthenticationFailureHandler OAuth2AuthenticationFailureHandler;
 
     public static final String[] PUBLIC_URLS = {
         // swaggger url
@@ -50,7 +64,8 @@ public class SecurityConfig {
         // open url
         "/api/v1/users/**",
         //h2-console
-        "/h2-console/**"
+        "/h2-console/**",
+        "oauth2/**",
 
     };
 
@@ -116,6 +131,15 @@ public class SecurityConfig {
 
 //                .anyRequest().authenticated()
                 .anyRequest().authenticated()
+        );
+
+        http.oauth2Login(oauth2 -> oauth2
+            .authorizationEndpoint(authorization -> authorization
+                .authorizationRequestRepository(cookieAuthorizationRequestRepository))
+            .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
+                .userService(customOAuth2UserService)
+            ).successHandler(OAuth2AuthenticationSuccessHandler)
+            .failureHandler(OAuth2AuthenticationFailureHandler)
         );
 
         return http.build();
