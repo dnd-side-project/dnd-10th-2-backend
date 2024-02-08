@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.NotFoundError;
-import org.dnd.timeet.timer.domain.Duration;
+import org.dnd.timeet.timer.domain.TimerDuration;
 import org.dnd.timeet.timer.domain.Timer;
 import org.dnd.timeet.timer.domain.TimerRepository;
 import org.dnd.timeet.timer.dto.TimerCreateRequest;
@@ -46,9 +46,9 @@ public class TimerService {
         timer.stopTimer();
     }
 
-    public void changeDuration(Long timerId, Duration newDuration) {
+    public void changeDuration(Long timerId, TimerDuration newTimerDuration) {
         Timer timer = findById(timerId);
-        timer.changeDuration(newDuration);
+        timer.changeDuration(newTimerDuration);
     }
 
     public void deleteTimer(Long timerId) {
