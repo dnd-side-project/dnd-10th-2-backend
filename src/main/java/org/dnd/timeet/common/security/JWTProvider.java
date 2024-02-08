@@ -8,6 +8,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Date;
 import org.dnd.timeet.member.domain.Member;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -17,7 +18,13 @@ public class JWTProvider {
     public static final String TOKEN_PREFIX = "Bearer ";
     public static final String HEADER = "Authorization";
 
-    public static final String SECRET = "MySecretKey";
+
+    public static String SECRET;
+
+    @Value("${app.auth.token.secret-key}")
+    public void setSecret(String secret) {
+        SECRET = secret;
+    }
 
     public static String create(Member member) {
         String jwt = JWT.create()
