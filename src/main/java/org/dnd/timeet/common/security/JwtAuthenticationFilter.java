@@ -8,15 +8,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Collections;
 import lombok.extern.slf4j.Slf4j;
 import org.dnd.timeet.common.exception.ApiException;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.exception.UnAuthorizedError;
-import org.dnd.timeet.config.SecurityConfig;
-import org.dnd.timeet.user.domain.User;
 import org.dnd.timeet.common.utils.ApiUtils;
-import org.dnd.timeet.user.application.UserFindService;
+import org.dnd.timeet.config.SecurityConfig;
+import org.dnd.timeet.member.application.MemberFindService;
+import org.dnd.timeet.member.domain.Member;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,15 +26,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import java.io.IOException;
-import java.util.Collections;
-
 @Slf4j
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
 
-    private final UserFindService userUtilityService;
+    private final MemberFindService userUtilityService;
 
-    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, UserFindService userUtilityService) {
+    public JwtAuthenticationFilter(AuthenticationManager authenticationManager, MemberFindService userUtilityService) {
         super(authenticationManager);
         this.userUtilityService = userUtilityService;
     }
@@ -40,6 +39,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
+
         String jwt = request.getHeader(JWTProvider.HEADER);
 
         try {
@@ -47,9 +47,9 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
                 DecodedJWT decodedJWT = JWTProvider.verify(jwt);
                 Long id = decodedJWT.getClaim("id").asLong();
 
-                User user = userUtilityService.getUserById(id);
+                Member member = userUtilityService.getUserById(id);
 
-                CustomUserDetails myUserDetails = new CustomUserDetails(user);
+                CustomUserDetails myUserDetails = new CustomUserDetails(member);
                 Authentication authentication =
                     new UsernamePasswordAuthenticationToken(
                         myUserDetails,
