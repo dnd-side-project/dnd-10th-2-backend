@@ -38,7 +38,7 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
 
     @Override
     public String getPassword() {
-        return null;
+        throw new UnsupportedOperationException("getPassword() is not supported.");
     }
 
     @Override
