@@ -38,6 +38,10 @@ public class MeetingCreateRequest {
     @Schema(description = "예상 소요 시간", example = "02:00")
     private LocalTime estimatedTotalDuration;
 
+    @NotNull(message = "썸네일은 반드시 입력되어야 합니다")
+    @Schema(description = "썸네일 이미지 번호", example = "1")
+    private Integer imageNum;
+
     public Meeting toEntity() {
         return Meeting.builder()
             .title(this.title)
@@ -45,6 +49,7 @@ public class MeetingCreateRequest {
             .startTime(startTime)
             .description(this.description)
             .totalEstimatedDuration(this.estimatedTotalDuration)
+            .imgNum(imageNum)
             .build();
     }
 }
