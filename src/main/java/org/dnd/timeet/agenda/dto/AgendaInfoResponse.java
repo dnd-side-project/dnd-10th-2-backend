@@ -17,7 +17,7 @@
 //    @Schema(description = "회의 제목", example = "2차 회의")
 //    private String title;
 //
-//    @Schema(description = "회의 목", example = "2개의 사안 모두 해결하기")
+//    @Schema(description = "회의 목표", example = "2개의 사안 모두 해결하기")
 //    private String description;
 //
 //    @Builder

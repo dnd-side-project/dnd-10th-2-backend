@@ -19,9 +19,9 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.dnd.timeet.agenda.domain.Agenda;
 import org.dnd.timeet.common.domain.AuditableEntity;
 import org.dnd.timeet.common.exception.BadRequestError;
-import org.dnd.timeet.agenda.domain.Agenda;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -63,9 +63,6 @@ public class Meeting extends AuditableEntity {
     @Column(nullable = false, name = "img_num")
     private Integer imgNum;
 
-    @OneToMany(mappedBy = "meeting", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Agenda> agendas = new ArrayList<>();
-
     @Builder
     public Meeting(String title, LocalDateTime startTime, LocalTime totalEstimatedDuration, String location,
                    String description, Integer imgNum) {
@@ -78,12 +75,10 @@ public class Meeting extends AuditableEntity {
     }
 
 
-    // 회의를 시작하는 메서드
     public void startMeeting() {
         this.status = MeetingStatus.INPROGRESS;
     }
 
-    // 회의를 종료하는 메서드
     public void endMeeting() {
         this.endTime = LocalDateTime.now();
         this.status = MeetingStatus.COMPLETED;
@@ -92,13 +87,11 @@ public class Meeting extends AuditableEntity {
         this.totalActualDuration = LocalTime.ofSecondOfDay(durationInSeconds);
     }
 
-    // 회의를 취소하는 메서드
     public void cancelMeeting() {
         this.status = MeetingStatus.CANCELED;
         this.delete();
     }
 
-    // 회의 시작 시간 수정하는 메서드
     public void updateStartTime(LocalDateTime startTime) {
         if (this.status != MeetingStatus.SCHEDULED) {
             throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
@@ -107,14 +100,5 @@ public class Meeting extends AuditableEntity {
         this.startTime = startTime;
     }
 
-    public void addAgenda(Agenda agenda) {
-        agendas.add(agenda);
-        agenda.assignToMeeting(this);
-    }
-
-    public void removeAgenda(Agenda agenda) {
-        agendas.remove(agenda);
-        agenda.assignToMeeting(null);
-    }
 }
 
