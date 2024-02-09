@@ -29,10 +29,10 @@ public class Member extends BaseEntity {
     @Column(length = 100, nullable = false)
     private String name;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 255, nullable = false, name = "image_url")
     private String imageUrl;
 
-    @Column(length = 100, nullable = false)
+    @Column(length = 100, nullable = false, name = "oauth_id")
     private Long oauthId;
 
     @Enumerated(EnumType.STRING)
