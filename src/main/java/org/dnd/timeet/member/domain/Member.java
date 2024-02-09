@@ -39,6 +39,9 @@ public class Member extends BaseEntity {
     @Column(length = 50, nullable = false)
     private OAuth2Provider provider;
 
+    @Column(length = 255)
+    private String fcmToken;
+
     // MEMO : 필수값들이므로 final 붙임
     @Builder
     public Member(MemberRole role, String name, String imageUrl, Long oauthId, OAuth2Provider provider) {
