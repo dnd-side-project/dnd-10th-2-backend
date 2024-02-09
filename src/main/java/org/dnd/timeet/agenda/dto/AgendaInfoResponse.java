@@ -1,38 +1,54 @@
-//package org.dnd.timeet.agenda.dto;
-//
-//import io.swagger.v3.oas.annotations.media.Schema;
-//import lombok.Builder;
-//import lombok.Getter;
-//import lombok.Setter;
-//import org.dnd.timeet.agenda.domain.Agenda;
-//
-//@Schema(description = "회의 정보 응답")
-//@Getter
-//@Setter
-//public class AgendaInfoResponse {
-//
-//    @Schema(description = "회의 id", example = "12L")
-//    private Long meetingId;
-//
-//    @Schema(description = "회의 제목", example = "2차 회의")
-//    private String title;
-//
-//    @Schema(description = "회의 목표", example = "2개의 사안 모두 해결하기")
-//    private String description;
-//
-//    @Builder
-//    public AgendaInfoResponse(Long meetingId, String title, String description) {
-//        this.meetingId = meetingId;
-//        this.title = title;
-//        this.description = description;
-//    }
-//
-//
-//    public static AgendaInfoResponse from(Agenda meeting) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
-//        return AgendaInfoResponse.builder()
-//            .meetingId(meeting.getId())
-//            .title(meeting.getTitle())
-//            .description(meeting.getDescription())
-//            .build();
-//    }
-//}
+package org.dnd.timeet.agenda.dto;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalTime;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import org.dnd.timeet.agenda.domain.Agenda;
+
+@Schema(description = "회의 정보 응답")
+@Getter
+@Setter
+public class AgendaInfoResponse {
+
+    @Schema(description = "안건 id", example = "12")
+    private Long agendaId;
+
+    @Schema(description = "안건 제목", example = "안건1")
+    private String title;
+
+    @Schema(description = "안건 종류", example = "AGENDA")
+    private String type;
+
+    @Schema(description = "예상 소요시간", example = "01:00")
+    private LocalTime estimatedDuration;
+
+    @Schema(description = "실제 소요시간", example = "01:30")
+    private LocalTime actualDuration;
+
+    @Schema(description = "안건 상태", example = "INPROGRESS")
+    private String status;
+
+    @Builder
+    public AgendaInfoResponse(Long agendaId, String title, String type, LocalTime estimatedDuration, LocalTime actualDuration, String status) {
+        this.agendaId = agendaId;
+        this.title = title;
+        this.type = type;
+        this.estimatedDuration = estimatedDuration;
+        this.actualDuration = actualDuration;
+        this.status = status;
+    }
+
+
+    public static AgendaInfoResponse from(Agenda agenda) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
+        return AgendaInfoResponse.builder()
+            .agendaId(agenda.getId())
+            .title(agenda.getTitle())
+            .type(agenda.getType().name())
+            .estimatedDuration(agenda.getEstimatedDuration())
+            .actualDuration(agenda.getActualDuration())
+            .status(agenda.getStatus().name())
+            .build();
+    }
+}

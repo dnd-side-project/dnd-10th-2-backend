@@ -1,6 +1,7 @@
 package org.dnd.timeet.agenda.application;
 
 import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.agenda.domain.Agenda;
 import org.dnd.timeet.agenda.domain.AgendaRepository;
@@ -30,9 +31,7 @@ public class AgendaService {
     }
 
     @Transactional(readOnly = true)
-    public Agenda findById(Long id) {
-        return agendaRepository.findById(id)
-            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                Collections.singletonMap("MeetingId", "Meeting not found")));
+    public List<Agenda> findAll(Long meetingId) {
+        return agendaRepository.findByMeetingId(meetingId);
     }
 }

@@ -70,10 +70,6 @@ public class Agenda extends AuditableEntity {
         this.status = status;
     }
 
-    public void assignToMeeting(Meeting meeting) {
-        this.meeting = meeting;
-    }
-
     public void start() {
         if (this.status != AgendaStatus.PENDING) {
             throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,

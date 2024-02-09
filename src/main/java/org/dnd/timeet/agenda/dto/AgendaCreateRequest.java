@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.dnd.timeet.agenda.domain.Agenda;
+import org.dnd.timeet.agenda.domain.AgendaStatus;
 import org.dnd.timeet.agenda.domain.AgendaType;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -43,6 +44,7 @@ public class AgendaCreateRequest {
             .type(this.type.equals("AGENDA") ? AgendaType.AGENDA : AgendaType.BREAK)
             .estimatedDuration(this.estimatedDuration)
             .orderNum(this.orderNum)
+            .status(AgendaStatus.PENDING)
             .build();
     }
 }
