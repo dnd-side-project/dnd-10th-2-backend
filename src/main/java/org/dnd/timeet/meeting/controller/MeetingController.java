@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.dnd.timeet.common.security.CustomUserDetails;
 import org.dnd.timeet.common.utils.ApiUtils;
 import org.dnd.timeet.common.utils.ApiUtils.ApiResult;
 import org.dnd.timeet.meeting.application.MeetingService;
@@ -12,6 +13,7 @@ import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +32,21 @@ public class MeetingController {
     @PostMapping
     @Operation(summary = "회의 생성", description = "회의를 생성한다.")
     public ResponseEntity<ApiResult<MeetingCreateResponse>> createMeeting(
-        @RequestBody @Valid MeetingCreateRequest meetingCreateRequest) {
-        // TODO : 유저 인증 로직 추가
-        Meeting savedMeeting = meetingService.createMeeting(meetingCreateRequest);
+        @RequestBody @Valid MeetingCreateRequest meetingCreateRequest,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        Meeting savedMeeting = meetingService.createMeeting(meetingCreateRequest, userDetails.getMember());
+        MeetingCreateResponse meetingCreateResponse = MeetingCreateResponse.from(savedMeeting);
+
+        return ResponseEntity.ok(ApiUtils.success(meetingCreateResponse));
+    }
+
+    @PostMapping("/{meeting-id}/attend")
+    @Operation(summary = "회의 참가", description = "회의에 참가한다.")
+    public ResponseEntity<ApiResult<MeetingCreateResponse>> attendMeeting(
+        @PathVariable("meeting-id") Long meetingId,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Meeting savedMeeting = meetingService.addParticipantToMeeting(meetingId, userDetails.getMember());
         MeetingCreateResponse meetingCreateResponse = MeetingCreateResponse.from(savedMeeting);
 
         return ResponseEntity.ok(ApiUtils.success(meetingCreateResponse));

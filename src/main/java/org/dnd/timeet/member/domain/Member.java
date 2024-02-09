@@ -5,13 +5,18 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.dnd.timeet.common.domain.BaseEntity;
 import org.dnd.timeet.oauth.OAuth2Provider;
+import org.dnd.timeet.participant.domain.Participant;
 import org.hibernate.annotations.Where;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,6 +43,9 @@ public class Member extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
     private OAuth2Provider provider;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
+    private Set<Participant> participations = new HashSet<>();
 
     // MEMO : 필수값들이므로 final 붙임
     @Builder
