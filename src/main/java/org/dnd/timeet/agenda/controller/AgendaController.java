@@ -10,9 +10,11 @@ import org.dnd.timeet.agenda.application.AgendaService;
 import org.dnd.timeet.agenda.domain.Agenda;
 import org.dnd.timeet.agenda.dto.AgendaCreateRequest;
 import org.dnd.timeet.agenda.dto.AgendaInfoResponse;
+import org.dnd.timeet.common.security.CustomUserDetails;
 import org.dnd.timeet.common.utils.ApiUtils;
 import org.dnd.timeet.common.utils.ApiUtils.ApiResult;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,8 +34,9 @@ public class AgendaController {
     @Operation(summary = "안건(+쉬는시간) 생성", description = "안건(+쉬는시간)을 생성한다.")
     public ResponseEntity<ApiResult<Long>> createMeeting(
         @PathVariable("meeting-id") Long meetingId,
-        @RequestBody @Valid AgendaCreateRequest agendaCreateRequest) {
-        Agenda savedMeeting = agendaService.createAgenda(meetingId, agendaCreateRequest);
+        @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
+        @AuthenticationPrincipal CustomUserDetails userDetails) {
+        Agenda savedMeeting = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
 
         return ResponseEntity.ok(ApiUtils.success(savedMeeting.getId()));
     }
