@@ -36,9 +36,9 @@ public class AgendaController {
         @PathVariable("meeting-id") Long meetingId,
         @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Agenda savedMeeting = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
+        Agenda savedAgenda = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
 
-        return ResponseEntity.ok(ApiUtils.success(savedMeeting.getId()));
+        return ResponseEntity.ok(ApiUtils.success(savedAgenda.getId()));
     }
 
     @GetMapping("/{meeting-id}/agendas")
