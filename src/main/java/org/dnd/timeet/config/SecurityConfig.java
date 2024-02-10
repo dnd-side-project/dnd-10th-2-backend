@@ -62,10 +62,13 @@ public class SecurityConfig {
         "/swagger-ui/**",
         "/swagger-resources/**",
         // open url
-        "/api/v1/users/**",
+        "/api/members/**",
         //h2-console
         "/h2-console/**",
+        // oauth2
         "oauth2/**",
+        // websocket
+        "/ws/**"
     };
 
     @Bean
@@ -96,7 +99,7 @@ public class SecurityConfig {
         );
 
         // cors 재설정
-        http.cors(cors -> cors.configurationSource(configurationSource()));
+        http.cors(cors -> cors.configurationSource(configurationSource())); // 개발 환경용
 
         // jSessionId 사용 거부 (토큰 인증 방식 사용)
         http.sessionManagement(session -> session
@@ -128,7 +131,6 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(PUBLIC_URLS).permitAll() // 인증 없이 접근 허용
 
-//                .anyRequest().authenticated()
                 .anyRequest().authenticated()
         );
 
@@ -171,38 +173,38 @@ public class SecurityConfig {
         return source;
     }
 
-    // 개발 환경용 CORS 설정
-    @Bean
-    @Profile("!prod")
-    public CorsConfigurationSource devCorsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        configuration.addAllowedOrigin(frontlocalurl);
-        configuration.setAllowCredentials(true);
-        configuration.addExposedHeader("Authorization");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
-
-    // 운영 환경용 CORS 설정
-    @Bean
-    @Profile("prod")
-    public CorsConfigurationSource prodCorsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedHeader("*");
-        configuration.addAllowedMethod("*");
-        // USER, OWNER 배포 주소 (React)
-        configuration.addAllowedOriginPattern(prodfronturl);
-        configuration.setAllowCredentials(true);
-        configuration.addExposedHeader("Authorization");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
+//    // 개발 환경용 CORS 설정
+//    @Bean
+//    @Profile("!prod")
+//    public CorsConfigurationSource devCorsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedHeader("*");
+//        configuration.addAllowedMethod("*");
+//        configuration.addAllowedOrigin(frontlocalurl);
+//        configuration.setAllowCredentials(true);
+//        configuration.addExposedHeader("Authorization");
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//
+//        return source;
+//    }
+//
+//    // 운영 환경용 CORS 설정
+//    @Bean
+//    @Profile("prod")
+//    public CorsConfigurationSource prodCorsConfigurationSource() {
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.addAllowedHeader("*");
+//        configuration.addAllowedMethod("*");
+//        // USER, OWNER 배포 주소 (React)
+//        configuration.addAllowedOriginPattern(prodfronturl);
+//        configuration.setAllowCredentials(true);
+//        configuration.addExposedHeader("Authorization");
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//
+//        return source;
+//    }
 }

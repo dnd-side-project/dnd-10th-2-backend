@@ -109,7 +109,7 @@ public class Agenda extends AuditableEntity {
                 Collections.singletonMap("AgendaStatus", "Agenda is already completed."));
         }
         this.status = AgendaStatus.COMPLETED;
-        this.actualDuration = calculateActualDuration();
+        this.actualDuration = calculateActualDuration(); // 실제 소요 시간 계산
     }
 
     private LocalTime calculateActualDuration() {
