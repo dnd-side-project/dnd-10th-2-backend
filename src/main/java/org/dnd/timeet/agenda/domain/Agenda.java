@@ -87,7 +87,7 @@ public class Agenda extends AuditableEntity {
     }
 
     public void resume() {
-        if (this.status != AgendaStatus.PAUSED) {
+        if (this.status != AgendaStatus.PAUSED || this.status != AgendaStatus.COMPLETED){
             throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
                 Collections.singletonMap("AgendaStatus", "Agenda can only be resumed from PAUSED status."));
         }

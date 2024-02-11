@@ -52,6 +52,9 @@ public class AgendaService {
                 Collections.singletonMap("AgendaId", "Agenda not found")));
 
         switch (actionRequest.getAction()) {
+            case "start":
+                agenda.start();
+                break;
             case "pause":
                 agenda.pause();
                 break;

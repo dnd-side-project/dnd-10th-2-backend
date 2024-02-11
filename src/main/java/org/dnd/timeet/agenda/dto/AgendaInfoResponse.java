@@ -24,6 +24,9 @@ public class AgendaInfoResponse {
     @Schema(description = "예상 소요시간", example = "01:00")
     private LocalTime estimatedDuration;
 
+    @Schema(description = "연장된 총 시간", example = "00:30")
+    private LocalTime extendedDuration;
+
     @Schema(description = "실제 소요시간", example = "01:30")
     private LocalTime actualDuration;
 
@@ -31,11 +34,12 @@ public class AgendaInfoResponse {
     private String status;
 
     @Builder
-    public AgendaInfoResponse(Long agendaId, String title, String type, LocalTime estimatedDuration, LocalTime actualDuration, String status) {
+    public AgendaInfoResponse(Long agendaId, String title, String type, LocalTime estimatedDuration, LocalTime extendedDuration, LocalTime actualDuration, String status) {
         this.agendaId = agendaId;
         this.title = title;
         this.type = type;
         this.estimatedDuration = estimatedDuration;
+        this.extendedDuration = extendedDuration;
         this.actualDuration = actualDuration;
         this.status = status;
     }
@@ -47,6 +51,7 @@ public class AgendaInfoResponse {
             .title(agenda.getTitle())
             .type(agenda.getType().name())
             .estimatedDuration(agenda.getEstimatedDuration())
+            .extendedDuration(agenda.getExtendedDuration())
             .actualDuration(agenda.getActualDuration())
             .status(agenda.getStatus().name())
             .build();
