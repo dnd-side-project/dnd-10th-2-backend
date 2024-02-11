@@ -20,7 +20,7 @@ jobs:
       - name: Make firebase-adminsdk.json
         run: |
           touch src/main/resources/timeet-firebase-adminsdk.json
-          echo "${{ secrets.FIREBASE_ADMINSDK }}" > src/main/resources/timeet-firebase-adminsdk.json
+          echo "${{ secrets.FIREBASE_ADMINSDK }}" | base64 --decode > src/main/resources/timeet-firebase-adminsdk.json
       - name: Make application-prod.yml
         run: |
           touch src/main/resources/application-prod.yml
