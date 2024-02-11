@@ -51,4 +51,8 @@ public class Member extends BaseEntity {
         this.oauthId = oauthId;
         this.provider = provider;
     }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
 }
