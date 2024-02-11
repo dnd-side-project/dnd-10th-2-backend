@@ -58,15 +58,15 @@ public class AgendaController {
         return ResponseEntity.ok(ApiUtils.success(agendaInfoResponseList));
     }
 
-//    /*
-//    * @MessageMapping : 클라이언트에서 해당 url로 메세지를 보내면 요청을 처리한다.
-//    * @SendTo : 브로커에게 메세지를 보낸다.
-//    *  과정
-//    *  1. 클라이언트에서 /app/meeting/{meetingId}/agendas/{agendaId}/action 으로 메세지를 보낸다.
-//    *  2. 핸들러가 메세지를 처리한다.
-//    *  3. 서버는 그 결과를 /topic/meeting/{meetingId}/agendas/{agendaId}/status 주소로 브로커에게 보낸다.
-//    *  4. 브로커는 해당 주소를 구독하고 있는 클라이언트에게 메세지를 전달한다.
-//     */
+    /*
+    * @MessageMapping : 클라이언트에서 해당 url로 메세지를 보내면 요청을 처리한다.
+    * @SendTo : 브로커에게 메세지를 보낸다.
+    *  과정
+    *  1. 클라이언트에서 /app/meeting/{meetingId}/agendas/{agendaId}/action 으로 메세지를 보낸다.
+    *  2. 핸들러가 메세지를 처리한다.
+    *  3. 서버는 그 결과를 /topic/meeting/{meetingId}/agendas/{agendaId}/status 주소로 브로커에게 보낸다.
+    *  4. 브로커는 해당 주소를 구독하고 있는 클라이언트에게 메세지를 전달한다.
+     */
     @Operation(summary = "안건 제어 및 갱신", description = "해당 안건을 제어 및 갱신한다.")
     @MessageMapping("/meeting/{meeting-id}/agendas/{agenda-id}/action")
     @SendTo("/topic/meeting/{meeting-id}/agendas/{agenda-id}/status")
