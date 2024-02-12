@@ -12,6 +12,7 @@ import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
+import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -61,4 +62,12 @@ public class MeetingController {
         return ResponseEntity.ok(ApiUtils.success(meetingInfoResponse));
     }
 
+    @GetMapping("{meeting-id}/report")
+    @Operation(summary = "회의 리포트 조회", description = "회의 리포트를 조회한다.")
+    public ResponseEntity<ApiResult<MeetingReportInfoResponse>> getMeetingReport(
+        @PathVariable("meeting-id") Long meetingId) {
+        MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
+
+        return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
+    }
 }

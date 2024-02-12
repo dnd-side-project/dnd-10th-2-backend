@@ -1,18 +1,25 @@
 package org.dnd.timeet.meeting.application;
 
+import java.time.LocalTime;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.dnd.timeet.agenda.domain.AgendaRepository;
+import org.dnd.timeet.agenda.domain.AgendaStatus;
+import org.dnd.timeet.agenda.domain.AgendaType;
+import org.dnd.timeet.agenda.dto.AgendaReportInfoResponse;
 import org.dnd.timeet.common.exception.BadRequestError;
+import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.exception.NotFoundError;
-
+import org.dnd.timeet.common.utils.TimeUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
-
+import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
+import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.participant.domain.Participant;
 import org.dnd.timeet.participant.domain.ParticipantRepository;
-import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
-import org.dnd.timeet.member.domain.Member;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +30,7 @@ public class MeetingService {
 
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
+    private final AgendaRepository agendaRepository;
 
     public Meeting createMeeting(MeetingCreateRequest createDto, Member member) {
         Meeting meeting = createDto.toEntity(member);
@@ -59,6 +67,36 @@ public class MeetingService {
 
         return meeting;
     }
+
+    public MeetingReportInfoResponse createReport(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        List<AgendaReportInfoResponse> agendaReportInfoResponses = agendaRepository.findByMeetingId(meetingId).stream()
+            .filter(agenda -> agenda.getType() == AgendaType.AGENDA && agenda.getStatus() == AgendaStatus.COMPLETED)
+            .map(AgendaReportInfoResponse::from)
+            .collect(Collectors.toList());
+
+        return MeetingReportInfoResponse.builder()
+            .totalDiff(
+                TimeUtils.calculateTimeDiff(meeting.getTotalEstimatedDuration(), meeting.getTotalActualDuration()))
+            .agendas(agendaReportInfoResponses)
+            .memos("회의록입니다.")
+            .build();
+
+    }
+
+    private LocalTime calculateTotalDiff(LocalTime totalEstimatedDuration, LocalTime totalActualDuration) {
+        if (totalEstimatedDuration == null || totalActualDuration == null) {
+            throw new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
+                Collections.singletonMap("Meeting", "Meeting totalEstimatedDuration or totalActualDuration is null"));
+        }
+
+        return totalEstimatedDuration.minusHours(totalActualDuration.getHour())
+            .minusMinutes(totalActualDuration.getMinute());
+    }
+
 
     @Transactional(readOnly = true)
     public Meeting findById(Long id) {
