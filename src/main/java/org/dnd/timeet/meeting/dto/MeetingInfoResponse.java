@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.dnd.timeet.meeting.domain.Meeting;
-import org.dnd.timeet.timer.domain.Timer;
-import org.dnd.timeet.timer.domain.TimerStatus;
 
 @Schema(description = "회의 정보 응답")
 @Getter
@@ -19,7 +17,7 @@ public class MeetingInfoResponse {
     @Schema(description = "회의 제목", example = "2차 회의")
     private String title;
 
-    @Schema(description = "회의 목", example = "2개의 사안 모두 해결하기")
+    @Schema(description = "회의 목표", example = "2개의 사안 모두 해결하기")
     private String description;
 
     @Builder
