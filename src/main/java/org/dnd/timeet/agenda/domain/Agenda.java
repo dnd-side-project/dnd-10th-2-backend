@@ -113,7 +113,7 @@ public class Agenda extends AuditableEntity {
     public Duration calculateCurrentDuration() {
         LocalDateTime now = LocalDateTime.now();
 
-        if (this.status == AgendaStatus.PENDING) {
+        if (this.status == AgendaStatus.PENDING || this.status == AgendaStatus.CANCELED) {
             return Duration.ZERO;
         } else if (this.status == AgendaStatus.COMPLETED) {
             return this.totalDuration;
@@ -133,7 +133,7 @@ public class Agenda extends AuditableEntity {
     public Duration calculateRemainingTime() {
         if (this.status == AgendaStatus.PENDING) {
             return this.allocatedDuration;
-        } else if (this.status == AgendaStatus.COMPLETED) {
+        } else if (this.status == AgendaStatus.COMPLETED || this.status == AgendaStatus.CANCELED) {
             return Duration.ZERO;
         } else { // INPROGRESS 또는 PAUSED 상태
             // 현재까지 진행된 시간 계산
