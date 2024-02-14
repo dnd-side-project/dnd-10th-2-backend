@@ -129,20 +129,17 @@ public class Agenda extends AuditableEntity {
         }
     }
 
-    // 남은 시간 계산 메서드 수정
+    // 남은 시간 계산 메서드
     public Duration calculateRemainingTime() {
-        ensureInProgressOrPaused();
-        // 현재까지 진행된 시간 계산
-        Duration passedTime = calculateCurrentDuration();
-        // 할당된 총 시간에서 현재까지 진행된 시간을 뺀다
-        return this.allocatedDuration.minus(passedTime);
-    }
-
-    private void ensureInProgressOrPaused() {
-        if (!(this.status == AgendaStatus.INPROGRESS || this.status == AgendaStatus.PAUSED)) {
-            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("AgendaStatus",
-                    "Operation is only allowed for agendas in INPROGRESS or PAUSED status."));
+        if (this.status == AgendaStatus.PENDING) {
+            return this.allocatedDuration;
+        } else if (this.status == AgendaStatus.COMPLETED) {
+            return Duration.ZERO;
+        } else { // INPROGRESS 또는 PAUSED 상태
+            // 현재까지 진행된 시간 계산
+            Duration passedTime = calculateCurrentDuration();
+            // 할당된 총 시간에서 현재까지 진행된 시간을 뺀다
+            return this.allocatedDuration.minus(passedTime);
         }
     }
 
