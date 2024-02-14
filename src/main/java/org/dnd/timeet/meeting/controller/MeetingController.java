@@ -14,6 +14,7 @@ import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
+import org.dnd.timeet.member.dto.MemberInfoListResponse;
 import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -66,13 +67,16 @@ public class MeetingController {
 
     @GetMapping("/{meeting-id}/users")
     @Operation(summary = "회의 참가자 조회", description = "회의에 참가한 사용자를 조회한다.")
-    public ResponseEntity getMeetingMembers(@PathVariable("meeting-id") Long meetingId) {
-        List<MemberInfoResponse> memberInfoReponseList = meetingService.getMeetingMembers(meetingId)
+    public ResponseEntity<ApiResult<MemberInfoListResponse>> getMeetingMembers(
+        @PathVariable("meeting-id") Long meetingId) {
+        List<MemberInfoResponse> memberInfoList = meetingService.getMeetingMembers(meetingId)
             .stream()
             .map(MemberInfoResponse::from)
             .collect(Collectors.toList());
 
-        return ResponseEntity.ok(ApiUtils.success(memberInfoReponseList));
+        MemberInfoListResponse memberInfoListResponse = new MemberInfoListResponse(memberInfoList);
+
+        return ResponseEntity.ok(ApiUtils.success(memberInfoListResponse));
     }
 
 
