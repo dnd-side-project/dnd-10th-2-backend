@@ -1,6 +1,8 @@
 package org.dnd.timeet.meeting.application;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.NotFoundError;
@@ -81,6 +83,17 @@ public class MeetingService {
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
         meeting.cancelMeeting();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Member> getMeetingMembers(Long meetingId) {
+        Meeting meeting = meetingRepository.findByIdWithParticipantsAndMembers(meetingId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        return meeting.getParticipants().stream()
+            .map(Participant::getMember)
+            .collect(Collectors.toList());
     }
 
 }
