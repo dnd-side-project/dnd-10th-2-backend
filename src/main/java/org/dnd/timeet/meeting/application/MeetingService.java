@@ -4,15 +4,12 @@ import java.util.Collections;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.NotFoundError;
-
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
-
-import org.dnd.timeet.participant.domain.Participant;
-import org.dnd.timeet.participant.domain.ParticipantRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.member.domain.Member;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
+import org.dnd.timeet.participant.domain.Participant;
+import org.dnd.timeet.participant.domain.ParticipantRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,6 +73,14 @@ public class MeetingService {
             meeting.assignNewHostRandomly();
         }
 
+    }
+
+    public void cancelMeeting(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        meeting.cancelMeeting();
     }
 
 }
