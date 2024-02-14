@@ -1,13 +1,13 @@
 package org.dnd.timeet.agenda.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalTime;
-import lombok.Builder;
+import java.time.Duration;
 import lombok.Getter;
 import lombok.Setter;
 import org.dnd.timeet.agenda.domain.Agenda;
+import org.dnd.timeet.common.utils.DurationUtils;
 
-@Schema(description = "회의 정보 응답")
+@Schema(description = "안건 정보 응답")
 @Getter
 @Setter
 public class AgendaInfoResponse {
@@ -15,45 +15,27 @@ public class AgendaInfoResponse {
     @Schema(description = "안건 id", example = "12")
     private Long agendaId;
 
-    @Schema(description = "안건 제목", example = "안건1")
+    @Schema(description = "안건 제목", example = "안건 1")
     private String title;
 
     @Schema(description = "안건 종류", example = "AGENDA")
     private String type;
 
-    @Schema(description = "예상 소요시간", example = "01:00")
-    private LocalTime estimatedDuration;
+    @Schema(description = "현재까지 소요된 시간", example = "00:36")
+    private String currentDuration;
 
-    @Schema(description = "연장된 총 시간", example = "00:30")
-    private LocalTime extendedDuration;
-
-    @Schema(description = "실제 소요시간", example = "01:30")
-    private LocalTime actualDuration;
+    @Schema(description = "남은 시간", example = "00:24")
+    private String remainingDuration;
 
     @Schema(description = "안건 상태", example = "INPROGRESS")
     private String status;
 
-    @Builder
-    public AgendaInfoResponse(Long agendaId, String title, String type, LocalTime estimatedDuration, LocalTime extendedDuration, LocalTime actualDuration, String status) {
-        this.agendaId = agendaId;
-        this.title = title;
-        this.type = type;
-        this.estimatedDuration = estimatedDuration;
-        this.extendedDuration = extendedDuration;
-        this.actualDuration = actualDuration;
-        this.status = status;
-    }
-
-
-    public static AgendaInfoResponse from(Agenda agenda) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
-        return AgendaInfoResponse.builder()
-            .agendaId(agenda.getId())
-            .title(agenda.getTitle())
-            .type(agenda.getType().name())
-            .estimatedDuration(agenda.getEstimatedDuration())
-            .extendedDuration(agenda.getExtendedDuration())
-            .actualDuration(agenda.getActualDuration())
-            .status(agenda.getStatus().name())
-            .build();
+    public AgendaInfoResponse(Agenda agenda, Duration currentDuration, Duration remainingDuration) {
+        this.agendaId = agenda.getId();
+        this.title = agenda.getTitle();
+        this.type = agenda.getType().name();
+        this.currentDuration = DurationUtils.formatDuration(currentDuration);
+        this.remainingDuration = DurationUtils.formatDuration(remainingDuration);
+        this.status = agenda.getStatus().name();
     }
 }

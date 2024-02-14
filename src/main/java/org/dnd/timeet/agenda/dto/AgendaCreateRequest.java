@@ -2,14 +2,13 @@ package org.dnd.timeet.agenda.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.dnd.timeet.agenda.domain.Agenda;
-import org.dnd.timeet.agenda.domain.AgendaStatus;
 import org.dnd.timeet.agenda.domain.AgendaType;
+import org.dnd.timeet.common.utils.DurationUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -31,7 +30,7 @@ public class AgendaCreateRequest {
     @NotNull(message = "안건 소요 시간은 반드시 입력되어야 합니다")
     @DateTimeFormat(pattern = "HH:mm")
     @Schema(description = "안건 소요 시간", example = "01:20")
-    private LocalTime estimatedDuration;
+    private LocalTime allocatedDuration;
 
     @NotNull(message = "안건 순서는 반드시 입력되어야 합니다")
     @Schema(description = "안건 순서", example = "1")
@@ -42,9 +41,8 @@ public class AgendaCreateRequest {
             .meeting(meeting)
             .title(this.title)
             .type(this.type.equals("AGENDA") ? AgendaType.AGENDA : AgendaType.BREAK)
-            .estimatedDuration(this.estimatedDuration)
+            .allocatedDuration(DurationUtils.convertLocalTimeToDuration(this.allocatedDuration))
             .orderNum(this.orderNum)
-            .status(AgendaStatus.PENDING)
             .build();
     }
 }
