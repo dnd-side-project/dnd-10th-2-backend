@@ -101,10 +101,16 @@ public class Meeting extends AuditableEntity {
             throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
                 Collections.singletonMap("MeetingId", "Meeting already completed"));
         }
-        
+
         this.status = MeetingStatus.COMPLETED;
 
         long durationInSeconds = Duration.between(startTime, endTime).getSeconds();
+
+        if (durationInSeconds > 24 * 3600) { // 하루를 초과하는 경우
+            throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("Meeting", "Meeting duration exceeds one day"));
+        }
+
         this.totalActualDuration = LocalTime.ofSecondOfDay(durationInSeconds);
     }
 

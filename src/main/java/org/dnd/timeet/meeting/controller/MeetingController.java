@@ -15,6 +15,7 @@ import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
+import org.dnd.timeet.meeting.dto.MeetingReportResponse;
 import org.dnd.timeet.member.dto.MemberInfoListResponse;
 import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.springframework.http.ResponseEntity;
@@ -61,12 +62,13 @@ public class MeetingController {
 
     @PatchMapping("/{meeting-id}/end")
     @Operation(summary = "회의 종료", description = "회의를 종료한다.")
-    public ResponseEntity<ApiResult<MeetingReportInfoResponse>> closeMeeting(
+    public ResponseEntity<ApiResult<MeetingReportResponse>> closeMeeting(
         @PathVariable("meeting-id") Long meetingId) {
         meetingService.endMeeting(meetingId);
         MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
+        MeetingReportResponse meetingReportResponse = new MeetingReportResponse(meetingReportInfoResponse);
 
-        return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
+        return ResponseEntity.ok(ApiUtils.success(meetingReportResponse));
     }
 
     @GetMapping("/{id}")
@@ -80,11 +82,13 @@ public class MeetingController {
 
     @GetMapping("{meeting-id}/report")
     @Operation(summary = "회의 리포트 조회", description = "회의 리포트를 조회한다.")
-    public ResponseEntity<ApiResult<MeetingReportInfoResponse>> getMeetingReport(
+    public ResponseEntity<ApiResult<MeetingReportResponse>> getMeetingReport(
         @PathVariable("meeting-id") Long meetingId) {
         MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
 
-        return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
+        MeetingReportResponse meetingReportResponse = new MeetingReportResponse(meetingReportInfoResponse);
+
+        return ResponseEntity.ok(ApiUtils.success(meetingReportResponse));
     }
 
     @DeleteMapping("/{meeting-id}")
