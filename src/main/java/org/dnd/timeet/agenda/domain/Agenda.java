@@ -10,7 +10,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.time.LocalTime;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -39,17 +40,25 @@ public class Agenda extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private AgendaType type;
 
-    // 예상 소요 시간
-    @Column(nullable = false, name = "estimated_duration")
-    private LocalTime estimatedDuration;
+    // 할당된 총 시간
+    @Column(name = "allocated_duration", nullable = false)
+    private Duration allocatedDuration = Duration.ZERO;
 
-    // 연장된 총 시간
-    @Column(nullable = true, name = "extended_duration")
-    private LocalTime extendedDuration;
+    // 안건 시작 시간
+    @Column(name = "start_time")
+    private LocalDateTime startTime;
 
-    // 실제 소요 시간
-    @Column(nullable = true, name = "actual_duration")
-    private LocalTime actualDuration;
+    // 안건 일시정지 시간
+    @Column(name = "pause_time")
+    private LocalDateTime pauseTime;
+
+    // 일시정지된 시간 누적
+    @Column(name = "paused_duration")
+    private Duration pausedDuration = Duration.ZERO;
+
+    // 안건 총 소요시간
+    @Column(name = "total_duration")
+    private Duration totalDuration;
 
     @Column(nullable = false, name = "order_num")
     private Integer orderNum;
@@ -57,67 +66,91 @@ public class Agenda extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private AgendaStatus status = AgendaStatus.PENDING;
 
-
     @Builder
-    public Agenda(Long id, Meeting meeting, String title, AgendaType type, LocalTime estimatedDuration,
-                  Integer orderNum, AgendaStatus status) {
-        this.id = id;
+    public Agenda(Meeting meeting, String title, AgendaType type, Duration allocatedDuration, Integer orderNum) {
         this.meeting = meeting;
         this.title = title;
         this.type = type;
-        this.estimatedDuration = estimatedDuration;
+        this.allocatedDuration = allocatedDuration;
         this.orderNum = orderNum;
-        this.status = status;
     }
 
+
     public void start() {
-        if (this.status != AgendaStatus.PENDING) {
-            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("AgendaStatus", "Agenda can only be started from PENDING status"));
-        }
+        validateTransition(AgendaStatus.PENDING);
+        this.startTime = LocalDateTime.now();
         this.status = AgendaStatus.INPROGRESS;
     }
 
     public void pause() {
-        if (this.status != AgendaStatus.INPROGRESS) {
-            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("AgendaStatus", "Agenda can only be paused from INPROGRESS status."));
-        }
+        validateTransition(AgendaStatus.INPROGRESS);
+        this.pauseTime = LocalDateTime.now(); // 일시정지 시간 설정
         this.status = AgendaStatus.PAUSED;
     }
 
     public void resume() {
-        if (this.status != AgendaStatus.PAUSED) {
-            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("AgendaStatus", "Agenda can only be resumed from PAUSED status."));
-        }
+        validateTransition(AgendaStatus.PAUSED);
+        // 일시정지된 시간 누적
+        this.pausedDuration = this.pausedDuration.plus(Duration.between(pauseTime, LocalDateTime.now()));
+        this.pauseTime = null;
         this.status = AgendaStatus.INPROGRESS;
     }
 
-    public void extendDuration(LocalTime extension) {
-        if (this.extendedDuration == null) {
-            this.extendedDuration = extension;
-        } else {
-            this.extendedDuration = this.extendedDuration.plusHours(extension.getHour())
-                .plusMinutes(extension.getMinute());
+    public void extendDuration(Duration extension) {
+        if (this.status != AgendaStatus.COMPLETED) {
+            this.allocatedDuration = this.allocatedDuration.plus(extension);
         }
     }
 
     public void complete() {
-        if (this.status == AgendaStatus.COMPLETED) {
-            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("AgendaStatus", "Agenda is already completed."));
-        }
+        validateTransition(AgendaStatus.INPROGRESS, AgendaStatus.PAUSED);
+
+        this.totalDuration = calculateCurrentDuration();
         this.status = AgendaStatus.COMPLETED;
-        this.actualDuration = calculateActualDuration(); // 실제 소요 시간 계산
     }
 
-    private LocalTime calculateActualDuration() {
-        if (this.extendedDuration != null) {
-            return this.estimatedDuration.plusHours(this.extendedDuration.getHour())
-                .plusMinutes(this.extendedDuration.getMinute());
+    // 현재까지 진행된 시간 계산
+    public Duration calculateCurrentDuration() {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (this.status == AgendaStatus.PENDING || this.status == AgendaStatus.CANCELED) {
+            return Duration.ZERO;
+        } else if (this.status == AgendaStatus.COMPLETED) {
+            return this.totalDuration;
+        } else { // INPROGRESS 또는 PAUSED 상태
+            Duration passedTime;
+            // PAUSED 상태라면, 마지막 일시정지 시간부터 현재까지의 시간을 뺀다
+            if (this.status == AgendaStatus.PAUSED && this.pauseTime != null) {
+                passedTime = Duration.between(this.startTime, this.pauseTime).minus(this.pausedDuration);
+            } else { // INPROGRESS 상태라면, 시작 시간부터 현재까지의 시간을 뺀다
+                passedTime = Duration.between(this.startTime, now).minus(this.pausedDuration);
+            }
+            return passedTime;
         }
-        return this.estimatedDuration;
+    }
+
+    // 남은 시간 계산 메서드
+    public Duration calculateRemainingTime() {
+        if (this.status == AgendaStatus.PENDING) {
+            return this.allocatedDuration;
+        } else if (this.status == AgendaStatus.COMPLETED || this.status == AgendaStatus.CANCELED) {
+            return Duration.ZERO;
+        } else { // INPROGRESS 또는 PAUSED 상태
+            // 현재까지 진행된 시간 계산
+            Duration passedTime = calculateCurrentDuration();
+            // 할당된 총 시간에서 현재까지 진행된 시간을 뺀다
+            return this.allocatedDuration.minus(passedTime);
+        }
+    }
+
+    private void validateTransition(AgendaStatus... validPreviousStatuses) {
+        for (AgendaStatus validStatus : validPreviousStatuses) {
+            if (this.status == validStatus) {
+                return;
+            }
+        }
+        throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+            Collections.singletonMap("AgendaStatus", "Invalid status transition"));
     }
 
     public void cancelAgenda() {

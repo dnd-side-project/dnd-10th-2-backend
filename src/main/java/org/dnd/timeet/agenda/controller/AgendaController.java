@@ -53,7 +53,7 @@ public class AgendaController {
         @PathVariable("meeting-id") Long meetingId) {
         List<AgendaInfoResponse> agendaInfoResponseList = agendaService.findAll(meetingId)
             .stream()
-            .map(AgendaInfoResponse::from)
+            .map(a -> new AgendaInfoResponse(a, a.calculateCurrentDuration(), a.calculateRemainingTime()))
             .collect(Collectors.toList());
 
         return ResponseEntity.ok(ApiUtils.success(agendaInfoResponseList));
@@ -63,21 +63,19 @@ public class AgendaController {
      * @MessageMapping : 클라이언트에서 해당 url로 메세지를 보내면 요청을 처리한다.
      * @SendTo : 브로커에게 메세지를 보낸다.
      *  과정
-     *  1. 클라이언트에서 /app/meeting/{meetingId}/agendas/{agendaId}/action 으로 메세지를 보낸다.
+     *  1. 클라이언트에서 /app/meeting/{meeting-id}/agendas/{agenda-id}/action 으로 메세지를 보낸다.
      *  2. 핸들러가 메세지를 처리한다.
-     *  3. 그 결과를 /topic/meeting/{meetingId}/agendas/{agendaId}/status 주소로 브로커에게 보낸다.
+     *  3. 서버는 그 결과를 /topic/meeting/{meeting-id}/agendas/{agenda-id}/status 주소로 브로커에게 보낸다.
      *  4. 브로커는 해당 주소를 구독하고 있는 클라이언트에게 메세지를 전달한다.
      */
     @Operation(summary = "안건 제어 및 갱신", description = "해당 안건을 제어 및 갱신한다.")
     @MessageMapping("/meeting/{meeting-id}/agendas/{agenda-id}/action")
     @SendTo("/topic/meeting/{meeting-id}/agendas/{agenda-id}/status")
-    public AgendaActionResponse handleAgendaAction(@DestinationVariable Long meetingId,
-                                                   @DestinationVariable Long agendaId,
+    public AgendaActionResponse handleAgendaAction(@DestinationVariable("meeting-id") Long meetingId,
+                                                   @DestinationVariable("agenda-id") Long agendaId,
                                                    AgendaActionRequest actionRequest) {
         // 로직 구현 (안건 상태 변경)
-        Agenda agenda = agendaService.changeAgendaStatus(meetingId, agendaId, actionRequest);
-        // 변경된 안건 상태로 응답 객체 생성 및 반환
-        return new AgendaActionResponse(agenda.getId(), agenda.getStatus());
+        return agendaService.changeAgendaStatus(meetingId, agendaId, actionRequest);
     }
 
     @DeleteMapping("/{meeting-id}/agendas/{agenda-id}")
