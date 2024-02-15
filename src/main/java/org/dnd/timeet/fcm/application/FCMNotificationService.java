@@ -4,7 +4,6 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import java.util.Collections;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.exception.NotFoundError;
@@ -21,14 +20,10 @@ public class FCMNotificationService {
     private final MemberRepository memberRepository;
 
     public void sendNotificationByToken(FCMNotificationRequestDto requestDto) {
-        Optional<Member> member = memberRepository.findById(requestDto.getTargetMemberId());
-
-        if (member.isEmpty()) {
-            throw new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                Collections.singletonMap("MemberId", "Member not found"));
-        }
-
-        if (member.get().getFcmToken() == null) {
+        Member member = memberRepository.findById(requestDto.getTargetMemberId())
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found")));
+        if (member.getFcmToken() == null) {
             throw new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("fcmToken", "fcmToken not exist"));
         }
@@ -39,7 +34,7 @@ public class FCMNotificationService {
             .build();
 
         Message message = Message.builder()
-            .setToken(member.get().getFcmToken())
+            .setToken(member.getFcmToken())
             .setNotification(notification)
             .build();
 

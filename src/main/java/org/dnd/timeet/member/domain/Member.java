@@ -52,6 +52,7 @@ public class Member extends BaseEntity {
         this.provider = provider;
     }
 
+
     public void setFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
