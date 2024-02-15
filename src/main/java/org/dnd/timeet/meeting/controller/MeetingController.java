@@ -3,6 +3,8 @@ package org.dnd.timeet.meeting.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.security.CustomUserDetails;
 import org.dnd.timeet.common.utils.ApiUtils;
@@ -13,8 +15,11 @@ import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
+import org.dnd.timeet.member.dto.MemberInfoListResponse;
+import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -70,4 +75,25 @@ public class MeetingController {
 
         return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
     }
+    @DeleteMapping("/{meeting-id}")
+    @Operation(summary = "회의 삭제", description = "지정된 id에 해당하는 회의를 삭제한다.")
+    public ResponseEntity deleteMeeting(@PathVariable("meeting-id") Long meetingId) {
+        meetingService.cancelMeeting(meetingId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{meeting-id}/users")
+    @Operation(summary = "회의 참가자 조회", description = "회의에 참가한 사용자를 조회한다.")
+    public ResponseEntity<ApiResult<MemberInfoListResponse>> getMeetingMembers(
+        @PathVariable("meeting-id") Long meetingId) {
+        List<MemberInfoResponse> memberInfoList = meetingService.getMeetingMembers(meetingId)
+            .stream()
+            .map(MemberInfoResponse::from)
+            .collect(Collectors.toList());
+
+        MemberInfoListResponse memberInfoListResponse = new MemberInfoListResponse(memberInfoList);
+
+        return ResponseEntity.ok(ApiUtils.success(memberInfoListResponse));
+    }
+
 }
