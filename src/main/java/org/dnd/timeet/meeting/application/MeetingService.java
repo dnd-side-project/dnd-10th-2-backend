@@ -77,6 +77,14 @@ public class MeetingService {
 
     }
 
+    public void cancelMeeting(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        meeting.cancelMeeting();
+    }
+
     @Transactional(readOnly = true)
     public List<Member> getMeetingMembers(Long meetingId) {
         Meeting meeting = meetingRepository.findByIdWithParticipantsAndMembers(meetingId)
