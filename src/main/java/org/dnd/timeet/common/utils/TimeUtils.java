@@ -1,24 +1,23 @@
 package org.dnd.timeet.common.utils;
 
 import java.time.Duration;
-import java.time.LocalTime;
 import java.util.Collections;
 import org.dnd.timeet.common.exception.InternalServerError;
 
 public class TimeUtils {
 
-    public static Duration calculateTimeDiff(LocalTime ActualDuration, LocalTime EstimatedDuration) {
+    public static Duration calculateTimeDiff(Duration actualDuration, Duration estimatedDuration) {
 
-        if (ActualDuration == null) {
+        if (actualDuration == null) {
             throw new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
                 Collections.singletonMap("LocalTime", "ActualDuration is null"));
         }
-        if (EstimatedDuration == null) {
+        if (estimatedDuration == null) {
             throw new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
-                Collections.singletonMap("LocalTime", "EstimatedDuration is null"));
+                Collections.singletonMap("LocalTime", "estimatedDuration is null"));
         }
-
-        return Duration.between(EstimatedDuration, ActualDuration);
+        // actualDuration - estimatedDuration
+        return actualDuration.minus(estimatedDuration);
     }
 
     public static String formatDuration(Duration duration) {
