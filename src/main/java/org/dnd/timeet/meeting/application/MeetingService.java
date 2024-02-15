@@ -31,6 +31,8 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AgendaRepository agendaRepository;
+    private final MeetingScheduler meetingScheduler;
+
 
     public Meeting createMeeting(MeetingCreateRequest createDto, Member member) {
         Meeting meeting = createDto.toEntity(member);
@@ -38,6 +40,9 @@ public class MeetingService {
 
         Participant participant = new Participant(meeting, member);
         participantRepository.save(participant);
+
+        // 스케줄러를 통해 회의 시작 시간에 회의 시작
+        meetingScheduler.scheduleMeetingStart(meeting.getId(), meeting.getStartTime());
 
         return meeting;
     }
