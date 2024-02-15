@@ -17,15 +17,16 @@ public class DurationUtils {
     }
 
     /**
-     * Duration 객체를 HH:mm 형식의 문자열로 포매팅한다.
+     * Duration 객체를 HH:mm:ss 형식의 문자열로 포매팅한다.
      *
      * @param duration Duration 객체
-     * @return 포매팅된 시간 문자열 (HH:mm)
+     * @return 포매팅된 시간 문자열 (HH:mm:ss)
      */
     public static String formatDuration(Duration duration) {
         long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
-        return String.format("%02d:%02d", hours, minutes);
+        long minutes = duration.toMinutesPart();
+        long seconds = duration.toSecondsPart();
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 }
 
