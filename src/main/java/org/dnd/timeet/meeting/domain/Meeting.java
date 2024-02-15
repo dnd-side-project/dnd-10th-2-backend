@@ -26,6 +26,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.dnd.timeet.common.domain.AuditableEntity;
 import org.dnd.timeet.common.exception.BadRequestError;
+import org.dnd.timeet.common.exception.BadRequestError.ErrorCode;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.participant.domain.Participant;
 import org.hibernate.annotations.Where;
@@ -78,7 +79,7 @@ public class Meeting extends AuditableEntity {
 
     @Builder
     public Meeting(Member hostMember, String title, LocalDateTime startTime, LocalTime totalEstimatedDuration,
-        String location, String description, Integer imgNum) {
+                   String location, String description, Integer imgNum) {
         this.hostMember = hostMember;
         this.title = title;
         this.startTime = startTime;
@@ -95,9 +96,21 @@ public class Meeting extends AuditableEntity {
 
     public void endMeeting() {
         this.endTime = LocalDateTime.now();
+
+        if (this.status == MeetingStatus.COMPLETED) {
+            throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("MeetingId", "Meeting already completed"));
+        }
+
         this.status = MeetingStatus.COMPLETED;
 
         long durationInSeconds = Duration.between(startTime, endTime).getSeconds();
+
+        if (durationInSeconds > 24 * 3600) { // 하루를 초과하는 경우
+            throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("Meeting", "Meeting duration exceeds one day"));
+        }
+
         this.totalActualDuration = LocalTime.ofSecondOfDay(durationInSeconds);
     }
 
