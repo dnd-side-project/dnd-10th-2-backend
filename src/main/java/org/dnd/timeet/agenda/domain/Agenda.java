@@ -120,5 +120,10 @@ public class Agenda extends AuditableEntity {
         return this.estimatedDuration;
     }
 
+    public void cancelAgenda() {
+        this.status = AgendaStatus.CANCELED;
+        this.delete();
+    }
+
 }
 

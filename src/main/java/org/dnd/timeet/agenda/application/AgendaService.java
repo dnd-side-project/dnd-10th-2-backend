@@ -15,7 +15,6 @@ import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.participant.domain.ParticipantRepository;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,4 +71,13 @@ public class AgendaService {
 
         return agendaRepository.save(agenda); // 변경된 안건 상태로 응답 객체 생성 및 반환
     }
+
+    public void cancelAgenda(Long meetingId, Long agendaId) {
+        Agenda agenda = agendaRepository.findByIdAndMeetingId(agendaId, meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("AgendaId", "Agenda not found")));
+        agenda.delete();
+    }
+
+
 }
