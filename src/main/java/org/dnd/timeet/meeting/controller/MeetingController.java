@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,6 +59,16 @@ public class MeetingController {
         return ResponseEntity.ok(ApiUtils.success(meetingCreateResponse));
     }
 
+    @PatchMapping("/{meeting-id}/end")
+    @Operation(summary = "회의 종료", description = "회의를 종료한다.")
+    public ResponseEntity<ApiResult<MeetingReportInfoResponse>> closeMeeting(
+        @PathVariable("meeting-id") Long meetingId) {
+        meetingService.endMeeting(meetingId);
+        MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
+
+        return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "단일 회의 조회", description = "지정된 id에 해당하는 회의를 조회한다.")
     public ResponseEntity<ApiResult<MeetingInfoResponse>> getTimerById(@PathVariable("id") Long meetingId) {
@@ -75,6 +86,7 @@ public class MeetingController {
 
         return ResponseEntity.ok(ApiUtils.success(meetingReportInfoResponse));
     }
+
     @DeleteMapping("/{meeting-id}")
     @Operation(summary = "회의 삭제", description = "지정된 id에 해당하는 회의를 삭제한다.")
     public ResponseEntity deleteMeeting(@PathVariable("meeting-id") Long meetingId) {

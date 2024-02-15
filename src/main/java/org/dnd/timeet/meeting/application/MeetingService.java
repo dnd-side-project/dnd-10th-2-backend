@@ -42,6 +42,14 @@ public class MeetingService {
         return meeting;
     }
 
+    public void endMeeting(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        meeting.endMeeting();
+    }
+
     public Meeting addParticipantToMeeting(Long meetingId, Member member) {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
