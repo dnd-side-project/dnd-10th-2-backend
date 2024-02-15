@@ -150,6 +150,41 @@ public class Meeting extends AuditableEntity {
         this.assignHostMember(newHost);
     }
 
+    // 현재까지 진행된 시간 계산
+    public Duration calculateCurrentDuration() {
+        switch (this.status) {
+            case SCHEDULED:
+                return Duration.ZERO;
+            case INPROGRESS:
+                return Duration.between(this.startTime, LocalDateTime.now());
+            case COMPLETED:
+                return this.totalActualDuration;
+            case CANCELED:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+            default:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+        }
+    }
+
+    // 남은 시간 계산 메서드
+    public Duration calculateRemainingTime() {
+        switch (this.status) {
+            case SCHEDULED:
+                return this.totalEstimatedDuration;
+            case INPROGRESS:
+                return this.totalEstimatedDuration.minus(calculateCurrentDuration());
+            case COMPLETED:
+                return Duration.ZERO;
+            case CANCELED:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+            default:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+        }
+    }
 
 }
 
