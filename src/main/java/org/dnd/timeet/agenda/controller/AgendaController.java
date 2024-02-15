@@ -20,6 +20,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,5 +76,15 @@ public class AgendaController {
                                                    AgendaActionRequest actionRequest) {
         // 로직 구현 (안건 상태 변경)
         return agendaService.changeAgendaStatus(meetingId, agendaId, actionRequest);
+    }
+
+    @DeleteMapping("/{meeting-id}/agendas/{agenda-id}")
+    @Operation(summary = "안건 삭제", description = "지정된 ID에 해당하는 안건을 삭제한다.")
+    public ResponseEntity deleteAgenda(
+        @PathVariable("meeting-id") Long meetingId,
+        @PathVariable("agenda-id") Long agendaId) {
+        agendaService.cancelAgenda(meetingId, agendaId);
+
+        return ResponseEntity.noContent().build();
     }
 }

@@ -153,5 +153,10 @@ public class Agenda extends AuditableEntity {
             Collections.singletonMap("AgendaStatus", "Invalid status transition"));
     }
 
+    public void cancelAgenda() {
+        this.status = AgendaStatus.CANCELED;
+        this.delete();
+    }
+
 }
 

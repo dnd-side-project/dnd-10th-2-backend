@@ -94,4 +94,13 @@ public class AgendaService {
 
         return new AgendaActionResponse(savedAgenda, currentDuration, remainingDuration);
     }
+
+    public void cancelAgenda(Long meetingId, Long agendaId) {
+        Agenda agenda = agendaRepository.findByIdAndMeetingId(agendaId, meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("AgendaId", "Agenda not found")));
+        agenda.delete();
+    }
+
+
 }
