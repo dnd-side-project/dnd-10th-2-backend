@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.agenda.domain.Agenda;
+import org.dnd.timeet.agenda.domain.AgendaAction;
 import org.dnd.timeet.agenda.domain.AgendaRepository;
 import org.dnd.timeet.agenda.dto.AgendaActionRequest;
 import org.dnd.timeet.agenda.dto.AgendaActionResponse;
@@ -55,20 +56,30 @@ public class AgendaService {
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("AgendaId", "Agenda not found")));
 
-        switch (actionRequest.getAction()) {
-            case "start":
+        String actionString = actionRequest.getAction().toUpperCase();
+        AgendaAction action;
+
+        try {
+            action = AgendaAction.valueOf(actionString);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("Action", "Invalid action"));
+        }
+
+        switch (action) {
+            case START:
                 agenda.start();
                 break;
-            case "pause":
+            case PAUSE:
                 agenda.pause();
                 break;
-            case "resume":
+            case RESUME:
                 agenda.resume();
                 break;
-            case "end":
+            case END:
                 agenda.complete();
                 break;
-            case "modify":
+            case MODIFY:
                 LocalTime modifiedDuration = LocalTime.parse(actionRequest.getModifiedDuration());
                 agenda.extendDuration(DurationUtils.convertLocalTimeToDuration(modifiedDuration));
                 break;
