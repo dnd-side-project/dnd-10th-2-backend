@@ -27,6 +27,7 @@ public class Timer extends AuditableEntity {
     private TimerStatus status;
 
     @Embedded
+    @Column(nullable = false, name = "timer_duration")
     private TimerDuration timerDuration;
 
     @Builder
