@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.dnd.timeet.meeting.domain.Meeting;
+import org.dnd.timeet.member.domain.Member;
 import org.springframework.format.annotation.DateTimeFormat;
 
 
@@ -38,13 +39,19 @@ public class MeetingCreateRequest {
     @Schema(description = "예상 소요 시간", example = "02:00")
     private LocalTime estimatedTotalDuration;
 
-    public Meeting toEntity() {
+    @NotNull(message = "썸네일은 반드시 입력되어야 합니다")
+    @Schema(description = "썸네일 이미지 번호", example = "1")
+    private Integer imageNum;
+
+    public Meeting toEntity(Member member) {
         return Meeting.builder()
+            .hostMember(member)
             .title(this.title)
             .location(this.location)
             .startTime(startTime)
             .description(this.description)
             .totalEstimatedDuration(this.estimatedTotalDuration)
+            .imgNum(imageNum)
             .build();
     }
 }
