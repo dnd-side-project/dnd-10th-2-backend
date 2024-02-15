@@ -1,6 +1,8 @@
 package org.dnd.timeet.meeting.application;
 
-import java.time.LocalTime;
+import static org.dnd.timeet.common.utils.TimeUtils.calculateTimeDiff;
+import static org.dnd.timeet.common.utils.TimeUtils.formatDuration;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,9 +12,7 @@ import org.dnd.timeet.agenda.domain.AgendaStatus;
 import org.dnd.timeet.agenda.domain.AgendaType;
 import org.dnd.timeet.agenda.dto.AgendaReportInfoResponse;
 import org.dnd.timeet.common.exception.BadRequestError;
-import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.exception.NotFoundError;
-import org.dnd.timeet.common.utils.TimeUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
@@ -80,23 +80,13 @@ public class MeetingService {
 
         return MeetingReportInfoResponse.builder()
             .totalDiff(
-                TimeUtils.calculateTimeDiff(meeting.getTotalEstimatedDuration(), meeting.getTotalActualDuration()))
+                formatDuration(
+                    calculateTimeDiff(meeting.getTotalActualDuration(), meeting.getTotalEstimatedDuration())))
             .agendas(agendaReportInfoResponses)
             .memos("회의록입니다.")
             .build();
 
     }
-
-    private LocalTime calculateTotalDiff(LocalTime totalEstimatedDuration, LocalTime totalActualDuration) {
-        if (totalEstimatedDuration == null || totalActualDuration == null) {
-            throw new InternalServerError(InternalServerError.ErrorCode.INTERNAL_SERVER_ERROR,
-                Collections.singletonMap("Meeting", "Meeting totalEstimatedDuration or totalActualDuration is null"));
-        }
-
-        return totalEstimatedDuration.minusHours(totalActualDuration.getHour())
-            .minusMinutes(totalActualDuration.getMinute());
-    }
-
 
     @Transactional(readOnly = true)
     public Meeting findById(Long id) {
