@@ -48,6 +48,14 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: ./gradlew clean build sonar --info
 
+      - name: Verify JAR File Exists
+        run: |
+          ls -l ./build/libs/
+          if [ -z "$(ls -A ./build/libs/*.jar)" ]; then
+            echo "No JAR files found in ./build/libs directory."
+            exit 1
+          fi
+
   docker:
     needs: build
     runs-on: ubuntu-latest
@@ -73,7 +81,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          JAR_FILE=$(ls ${GITHUB_WORKSPACE}/build/libs/*.jar | head -n 1)
+          JAR_FILE=$(ls ./build/libs/*.jar | head -n 1)
           docker buildx build --platform linux/amd64,linux/arm64 \
             -t syw5141/dnd-10th-2-backend:latest \
             --build-arg JAR_FILE="$JAR_FILE" \
