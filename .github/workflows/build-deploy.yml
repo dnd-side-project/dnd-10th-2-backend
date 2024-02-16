@@ -49,6 +49,7 @@ jobs:
         run: ./gradlew clean build sonar --info
 
   docker:
+    needs: build
     runs-on: ubuntu-latest
     steps:
       # repository checkout
