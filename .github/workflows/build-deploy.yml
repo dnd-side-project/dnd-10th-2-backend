@@ -115,7 +115,7 @@ jobs:
 
 
   deploy:
-    needs: docker
+    needs: build
     name: Deploy
     runs-on: ubuntu-latest
     steps:
