@@ -73,7 +73,7 @@ jobs:
 
       - name: Build and Push Docker Image
         run: |
-          JAR_FILE=$(ls ./build/libs/*.jar | head -n 1)
+          JAR_FILE=$(ls /usr/src/app/build/libs/*.jar | head -n 1)
           docker buildx build --platform linux/amd64,linux/arm64 \
             -t syw5141/dnd-10th-2-backend:latest \
             --build-arg JAR_FILE="$JAR_FILE" \
