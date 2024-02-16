@@ -66,6 +66,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 17
+
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
       - name: Make firebase-adminsdk.json
@@ -80,6 +81,11 @@ jobs:
         run: |
           touch src/main/resources/application-test.yml
           echo "${{ secrets.APPLICATION_TEST }}" | base64 --decode > src/main/resources/application-test.yml
+
+      - name: Make application-local.yml
+        run: |
+          touch src/main/resources/application-local.yml
+          echo "${{ secrets.APPLICATION_LOCAL }}" | base64 --decode > src/main/resources/application-local.yml
       - name: Set output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
