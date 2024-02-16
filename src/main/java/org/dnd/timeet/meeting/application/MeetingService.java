@@ -13,9 +13,11 @@ import org.dnd.timeet.agenda.domain.AgendaType;
 import org.dnd.timeet.agenda.dto.AgendaReportInfoResponse;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.NotFoundError;
+import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.participant.domain.Participant;
@@ -31,6 +33,8 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AgendaRepository agendaRepository;
+    private final MeetingScheduler meetingScheduler;
+
 
     public Meeting createMeeting(MeetingCreateRequest createDto, Member member) {
         Meeting meeting = createDto.toEntity(member);
@@ -38,6 +42,9 @@ public class MeetingService {
 
         Participant participant = new Participant(meeting, member);
         participantRepository.save(participant);
+
+        // 스케줄러를 통해 회의 시작 시간에 회의 시작
+        meetingScheduler.scheduleMeetingStart(meeting.getId(), meeting.getStartTime());
 
         return meeting;
     }
@@ -131,6 +138,15 @@ public class MeetingService {
         return meeting.getParticipants().stream()
             .map(Participant::getMember)
             .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public MeetingRemainingTimeResponse getRemainingTime(Long meetingId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        return MeetingRemainingTimeResponse.from(meeting);
     }
 
 }

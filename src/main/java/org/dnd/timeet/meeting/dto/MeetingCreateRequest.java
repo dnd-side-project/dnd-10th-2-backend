@@ -2,12 +2,12 @@ package org.dnd.timeet.meeting.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.dnd.timeet.common.utils.DurationUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.member.domain.Member;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -50,7 +50,7 @@ public class MeetingCreateRequest {
             .location(this.location)
             .startTime(startTime)
             .description(this.description)
-            .totalEstimatedDuration(this.estimatedTotalDuration)
+            .totalEstimatedDuration(DurationUtils.convertLocalTimeToDuration(this.estimatedTotalDuration))
             .imgNum(imageNum)
             .build();
     }

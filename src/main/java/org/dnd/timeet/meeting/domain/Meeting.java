@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -55,11 +54,11 @@ public class Meeting extends AuditableEntity {
 
     // 예상 소요 시간
     @Column(nullable = false, name = "total_estimated_duration")
-    private LocalTime totalEstimatedDuration;
+    private Duration totalEstimatedDuration;
 
     // 실제 소요 시간, 초기값 null
     @Column(name = "total_actual_duration")
-    private LocalTime totalActualDuration;
+    private Duration totalActualDuration;
 
     @Column(nullable = true, length = 255)
     private String location;
@@ -78,7 +77,7 @@ public class Meeting extends AuditableEntity {
     private Set<Participant> participants = new HashSet<>();
 
     @Builder
-    public Meeting(Member hostMember, String title, LocalDateTime startTime, LocalTime totalEstimatedDuration,
+    public Meeting(Member hostMember, String title, LocalDateTime startTime, Duration totalEstimatedDuration,
                    String location, String description, Integer imgNum) {
         this.hostMember = hostMember;
         this.title = title;
@@ -104,14 +103,14 @@ public class Meeting extends AuditableEntity {
 
         this.status = MeetingStatus.COMPLETED;
 
-        long durationInSeconds = Duration.between(startTime, endTime).getSeconds();
+        Duration duration = Duration.between(startTime, endTime);
 
-        if (durationInSeconds > 24 * 3600) { // 하루를 초과하는 경우
+        if (duration.getSeconds() > 24 * 3600) { // 하루를 초과하는 경우
             throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
                 Collections.singletonMap("Meeting", "Meeting duration exceeds one day"));
         }
 
-        this.totalActualDuration = LocalTime.ofSecondOfDay(durationInSeconds);
+        this.totalActualDuration = duration;
     }
 
     public void cancelMeeting() {
@@ -151,6 +150,41 @@ public class Meeting extends AuditableEntity {
         this.assignHostMember(newHost);
     }
 
+    // 현재까지 진행된 시간 계산
+    public Duration calculateCurrentDuration() {
+        switch (this.status) {
+            case SCHEDULED:
+                return Duration.ZERO;
+            case INPROGRESS:
+                return Duration.between(this.startTime, LocalDateTime.now());
+            case COMPLETED:
+                return this.totalActualDuration;
+            case CANCELED:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+            default:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+        }
+    }
+
+    // 남은 시간 계산 메서드
+    public Duration calculateRemainingTime() {
+        switch (this.status) {
+            case SCHEDULED:
+                return this.totalEstimatedDuration;
+            case INPROGRESS:
+                return this.totalEstimatedDuration.minus(calculateCurrentDuration());
+            case COMPLETED:
+                return Duration.ZERO;
+            case CANCELED:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+            default:
+                throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+        }
+    }
 
 }
 
