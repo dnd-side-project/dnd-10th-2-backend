@@ -14,11 +14,15 @@ import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
+import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportResponse;
 import org.dnd.timeet.member.dto.MemberInfoListResponse;
 import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -78,6 +82,16 @@ public class MeetingController {
         MeetingInfoResponse meetingInfoResponse = MeetingInfoResponse.from(meeting);
 
         return ResponseEntity.ok(ApiUtils.success(meetingInfoResponse));
+    }
+
+    @Operation(summary = "남은 시간 조회", description = "웹소켓을 통해 특정 회의의 남은 시간을 조회한다.")
+    @MessageMapping("/meeting/{meeting-id}/remaining-time")
+    @SendTo("/topic/meeting/{meeting-id}/remaining-time")
+    public ResponseEntity<ApiResult<MeetingRemainingTimeResponse>> getRemainingTime(
+        @DestinationVariable("meeting-id") Long meetingId) {
+        MeetingRemainingTimeResponse response = meetingService.getRemainingTime(meetingId);
+
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     @GetMapping("{meeting-id}/report")

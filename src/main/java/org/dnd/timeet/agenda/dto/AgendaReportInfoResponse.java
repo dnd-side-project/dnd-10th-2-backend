@@ -37,7 +37,7 @@ public class AgendaReportInfoResponse {
         return AgendaReportInfoResponse.builder()
             .agendaId(agenda.getId())
             .title(agenda.getTitle())
-            .diff(formatDuration(calculateTimeDiff(agenda.getActualDuration(), agenda.getEstimatedDuration())))
+            .diff(formatDuration(calculateTimeDiff(agenda.getTotalDuration(), agenda.getAllocatedDuration())))
             .build();
     }
 }
