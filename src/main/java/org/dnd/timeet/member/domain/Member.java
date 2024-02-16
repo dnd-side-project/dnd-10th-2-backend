@@ -44,6 +44,9 @@ public class Member extends BaseEntity {
     @Column(length = 50, nullable = false)
     private OAuth2Provider provider;
 
+    @Column(length = 255)
+    private String fcmToken;
+  
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private Set<Participant> participations = new HashSet<>();
 
@@ -55,5 +58,10 @@ public class Member extends BaseEntity {
         this.imageUrl = imageUrl;
         this.oauthId = oauthId;
         this.provider = provider;
+    }
+
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }
