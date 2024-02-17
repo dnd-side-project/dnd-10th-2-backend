@@ -1,18 +1,25 @@
 version: '3.7'
 services:
+  db:
+    image: mysql:8-oracle
+    restart: always
+    environment:
+      MYSQL_DATABASE: '{MYSQL_DATABASE}'
+      MYSQL_USER: '${MYSQL_USER}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD}'
+      MYSQL_ROOT_PASSWORD: '${MYSQL_ROOT_PASSWORD}'
+    ports:
+      - '3306:3306'
+    volumes:
+      - db_data:/var/lib/mysql
+
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment: # 환경 변수 설정
-      - SPRING_DATASOURCE_URL=jdbc:h2:file:/usr/src/app/data/mydb;DB_CLOSE_ON_EXIT=FALSE
-    platform: linux/amd64
+    image: syw5141/dnd-10th-2-backend:latest
     ports:
       - "8080:8080"
-    # h2data 볼륨을 컨테이너 내부의 /usr/src/app/data에 매핑
-    volumes:
-      - h2data:/usr/src/app/data
+    depends_on:
+      - db
 
 # 볼륨 정의 (기본 설정 사용)
 volumes:
-  h2data:
+  db_data:

@@ -1,0 +1,57 @@
+name: check
+
+on: [ pull_request, workflow_dispatch ]
+
+
+jobs:
+  style:
+    name: Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+      - name: Run Checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest
+      - name: Make firebase-adminsdk.json
+        run: |
+          touch src/main/resources/timeet-firebase-adminsdk.json
+          echo "${{ secrets.FIREBASE_ADMINSDK }}" | base64 --decode > src/main/resources/timeet-firebase-adminsdk.json
+      - name: Make application-prod.yml
+        run: |
+          touch src/main/resources/application-prod.yml
+          echo "${{ secrets.APPLICATION_PROD }}" | base64 --decode > src/main/resources/application-prod.yml
+      - name: Make application-test.yml
+        run: |
+          touch src/main/resources/application-test.yml
+          echo "${{ secrets.APPLICATION_TEST }}" | base64 --decode > src/main/resources/application-test.yml
+      - name: Cache SonarQube packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Gradle packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: ./gradlew clean build sonar --info
+
+      - name: Verify JAR File Exists
+        run: |
+          ls -l ./build/libs/
+          if [ -z "$(ls -A ./build/libs/*.jar)" ]; then
+            echo "No JAR files found in ./build/libs directory."
+            exit 1
+          fi
