@@ -1,3 +1,5 @@
+.env
+timeet-firebase-adminsdk.json
 HELP.md
 .gradle
 build/
