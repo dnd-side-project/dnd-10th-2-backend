@@ -40,11 +40,11 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
         throws IOException, ServletException {
 
-        String jwt = request.getHeader(JWTProvider.HEADER);
+        String jwt = request.getHeader(JwtProvider.HEADER);
 
         try {
             if (jwt != null && !isNonProtectedUrl(request)) { // 토큰이 있고 보호된 URL일 경우 토큰 검증
-                DecodedJWT decodedJWT = JWTProvider.verify(jwt);
+                DecodedJWT decodedJWT = JwtProvider.verify(jwt);
                 Long id = decodedJWT.getClaim("id").asLong();
 
                 Member member = userUtilityService.getUserById(id);

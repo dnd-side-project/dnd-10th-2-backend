@@ -15,7 +15,7 @@ import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.BadRequestError.ErrorCode;
 import org.dnd.timeet.common.security.CookieAuthorizationRequestRepository;
 import org.dnd.timeet.common.security.CustomUserDetails;
-import org.dnd.timeet.common.security.JWTProvider;
+import org.dnd.timeet.common.security.JwtProvider;
 import org.dnd.timeet.common.utils.CookieUtil;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.member.domain.MemberRepository;
@@ -65,7 +65,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         // jwt
 
-        String accessToken = JWTProvider.create(user.get());
+        String accessToken = JwtProvider.create(user.get());
 
         return UriComponentsBuilder.fromUriString(targetUrl)
             .queryParam("code", accessToken)

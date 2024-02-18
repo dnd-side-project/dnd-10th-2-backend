@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JWTProvider {
+public class JwtProvider {
 
     public static final Long EXP = 1000L * 60 * 60 * 48; // 48시간
     public static final String TOKEN_PREFIX = "Bearer ";
