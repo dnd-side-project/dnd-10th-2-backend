@@ -64,4 +64,8 @@ public class Member extends BaseEntity {
     public void setFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
     }
+
+    public void changeName(String name) {
+        this.name = name;
+    }
 }

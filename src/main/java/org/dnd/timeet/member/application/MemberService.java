@@ -10,7 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Service
 public class MemberService {
@@ -18,13 +18,20 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
 
-    @Transactional
     public void upsertFcmToken(Long id, String fcmToken) {
         Member member = memberRepository.findById(id)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MemberId", "Member not found")));
         member.setFcmToken(fcmToken);
 
+    }
 
+    public String updateNickname(Long id, String nickname) {
+        Member member = memberRepository.findById(id)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found")));
+        member.changeName(nickname);
+
+        return member.getName();
     }
 }
