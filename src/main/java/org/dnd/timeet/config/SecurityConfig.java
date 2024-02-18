@@ -62,7 +62,6 @@ public class SecurityConfig {
         "/swagger-ui/**",
         "/swagger-resources/**",
         // open url
-        "/api/members/**",
         //h2-console
         "/h2-console/**",
         // oauth2
