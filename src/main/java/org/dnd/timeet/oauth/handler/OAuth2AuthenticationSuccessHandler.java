@@ -30,8 +30,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    @Value("${app.oauth2.authorized-redirect-uri}")
-    private String redirectUri;
+    @Value("${app.auth.oauth2.authorized-redirect-uris}")
+    private String[] AUTHORIZED_REDIRECT_URIS;
 
     private final CookieAuthorizationRequestRepository authorizationRequestRepository;
     private final MemberRepository memberRepository;
@@ -80,9 +80,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private boolean isAuthorizedRedirectUri(String uri) {
         URI clientRedirectUri = URI.create(uri);
-        URI authorizedUri = URI.create(redirectUri);
-
-        return authorizedUri.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-            && authorizedUri.getPort() == clientRedirectUri.getPort();
+        for (String authorizedRedirectUri : AUTHORIZED_REDIRECT_URIS) {
+            URI authorizedUri = URI.create(authorizedRedirectUri);
+            if (authorizedUri.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+                && authorizedUri.getPort() == clientRedirectUri.getPort()) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -8,9 +8,11 @@ import org.dnd.timeet.common.utils.ApiUtils;
 import org.dnd.timeet.common.utils.ApiUtils.ApiResult;
 import org.dnd.timeet.member.application.MemberService;
 import org.dnd.timeet.member.domain.Member;
+import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.dnd.timeet.member.dto.MemberNicknameRequest;
 import org.dnd.timeet.member.dto.RegisterFcmRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @GetMapping("")
+    @Operation(summary = "사용자 정보 조회", description = "사용자 정보를 조회한다.")
+    public ResponseEntity<ApiResult<MemberInfoResponse>> getMemberInfo(@ReqUser Member member) {
+        return ResponseEntity.ok(ApiUtils.success(MemberInfoResponse.from(member)));
+    }
 
     @PatchMapping
     @Operation(summary = "fcmToken 등록", description = "fcmToken을 등록한다.")

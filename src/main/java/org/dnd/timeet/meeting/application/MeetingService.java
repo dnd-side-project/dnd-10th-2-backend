@@ -5,6 +5,7 @@ import static org.dnd.timeet.common.utils.TimeUtils.formatDuration;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.agenda.domain.AgendaRepository;
@@ -12,6 +13,7 @@ import org.dnd.timeet.agenda.domain.AgendaStatus;
 import org.dnd.timeet.agenda.domain.AgendaType;
 import org.dnd.timeet.agenda.dto.AgendaReportInfoResponse;
 import org.dnd.timeet.common.exception.BadRequestError;
+import org.dnd.timeet.common.exception.ForbiddenError;
 import org.dnd.timeet.common.exception.NotFoundError;
 import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
 import org.dnd.timeet.meeting.domain.Meeting;
@@ -49,12 +51,27 @@ public class MeetingService {
         return meeting;
     }
 
-    public void endMeeting(Long meetingId) {
+    public void endMeeting(Long meetingId, Long memberId) {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
+        // 회의의 방장인지 확인
+        if (!Objects.equals(meeting.getHostMember().getId(), memberId)) {
+            throw new ForbiddenError(ForbiddenError.ErrorCode.ROLE_BASED_ACCESS_ERROR,
+                Collections.singletonMap("MemberId", "Member is not the host of the meeting"));
+        }
 
         meeting.endMeeting();
+        // 회의에서 진행중인 안건들도 모두 종료되도록 하기
+        agendaRepository.findByMeetingId(meetingId)
+            .forEach(agenda -> {
+                if (agenda.getStatus().equals(AgendaStatus.INPROGRESS) ||
+                    agenda.getStatus().equals(AgendaStatus.PAUSED)) {
+                    agenda.complete();
+                } else if (agenda.getStatus().equals(AgendaStatus.PENDING)) {
+                    agenda.cancel();
+                }
+            });
     }
 
     public Meeting addParticipantToMeeting(Long meetingId, Member member) {

@@ -56,9 +56,9 @@ public class Meeting extends AuditableEntity {
     @Column(nullable = false, name = "total_estimated_duration")
     private Duration totalEstimatedDuration;
 
-    // 실제 소요 시간, 초기값 null
+    // 안건 총합시간 - 회의 소요시간
     @Column(name = "total_actual_duration")
-    private Duration totalActualDuration;
+    private Duration totalActualDuration = Duration.ZERO;
 
     @Column(nullable = true, length = 255)
     private String location;
@@ -93,6 +93,7 @@ public class Meeting extends AuditableEntity {
         this.status = MeetingStatus.INPROGRESS;
     }
 
+    // 회의 종료 버튼 누르거나 소요 시간이 끝날 경우
     public void endMeeting() {
         this.endTime = LocalDateTime.now();
 
@@ -150,6 +151,10 @@ public class Meeting extends AuditableEntity {
         this.assignHostMember(newHost);
     }
 
+    public void updateTotalActualDuration(Duration duration) {
+        this.totalActualDuration = duration;
+    }
+
     // 현재까지 진행된 시간 계산
     public Duration calculateCurrentDuration() {
         switch (this.status) {
@@ -172,9 +177,9 @@ public class Meeting extends AuditableEntity {
     public Duration calculateRemainingTime() {
         switch (this.status) {
             case SCHEDULED:
-                return this.totalEstimatedDuration;
+                return this.totalActualDuration; // Duration.ZERO
             case INPROGRESS:
-                return this.totalEstimatedDuration.minus(calculateCurrentDuration());
+                return this.totalActualDuration.minus(calculateCurrentDuration());
             case COMPLETED:
                 return Duration.ZERO;
             case CANCELED:

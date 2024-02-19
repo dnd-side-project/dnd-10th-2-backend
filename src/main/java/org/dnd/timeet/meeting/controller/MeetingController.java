@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.security.CustomUserDetails;
+import org.dnd.timeet.common.security.annotation.ReqUser;
 import org.dnd.timeet.common.utils.ApiUtils;
 import org.dnd.timeet.common.utils.ApiUtils.ApiResult;
 import org.dnd.timeet.meeting.application.MeetingService;
@@ -17,6 +18,7 @@ import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportResponse;
+import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.member.dto.MemberInfoListResponse;
 import org.dnd.timeet.member.dto.MemberInfoResponse;
 import org.springframework.http.ResponseEntity;
@@ -67,17 +69,19 @@ public class MeetingController {
     @PatchMapping("/{meeting-id}/end")
     @Operation(summary = "회의 종료", description = "회의를 종료한다.")
     public ResponseEntity<ApiResult<MeetingReportResponse>> closeMeeting(
-        @PathVariable("meeting-id") Long meetingId) {
-        meetingService.endMeeting(meetingId);
+        @PathVariable("meeting-id") Long meetingId,
+        @ReqUser Member member) {
+        meetingService.endMeeting(meetingId, member.getId());
+
         MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
         MeetingReportResponse meetingReportResponse = new MeetingReportResponse(meetingReportInfoResponse);
 
         return ResponseEntity.ok(ApiUtils.success(meetingReportResponse));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{meeting-id}")
     @Operation(summary = "단일 회의 조회", description = "지정된 id에 해당하는 회의를 조회한다.")
-    public ResponseEntity<ApiResult<MeetingInfoResponse>> getTimerById(@PathVariable("id") Long meetingId) {
+    public ResponseEntity<ApiResult<MeetingInfoResponse>> getTimerById(@PathVariable("meeting-id") Long meetingId) {
         Meeting meeting = meetingService.findById(meetingId);
         MeetingInfoResponse meetingInfoResponse = MeetingInfoResponse.from(meeting);
 
