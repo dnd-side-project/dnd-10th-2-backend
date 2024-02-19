@@ -12,12 +12,12 @@ public class MemberInfoResponse {
     @Schema(description = "사용자 id", nullable = false, example = "12")
     private long id;
     @Schema(description = "사용자 이름", nullable = false, example = "green12")
-    private String name;
+    private String nickname;
 
 
-    public MemberInfoResponse(long id, String name) {
+    public MemberInfoResponse(long id, String nickname) {
         this.id = id;
-        this.name = name;
+        this.nickname = nickname;
     }
 
     public static MemberInfoResponse from(Member member) {
