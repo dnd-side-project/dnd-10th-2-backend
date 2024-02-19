@@ -79,9 +79,9 @@ public class MeetingController {
         return ResponseEntity.ok(ApiUtils.success(meetingReportResponse));
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{meeting-id}")
     @Operation(summary = "단일 회의 조회", description = "지정된 id에 해당하는 회의를 조회한다.")
-    public ResponseEntity<ApiResult<MeetingInfoResponse>> getTimerById(@PathVariable("id") Long meetingId) {
+    public ResponseEntity<ApiResult<MeetingInfoResponse>> getTimerById(@PathVariable("meeting-id") Long meetingId) {
         Meeting meeting = meetingService.findById(meetingId);
         MeetingInfoResponse meetingInfoResponse = MeetingInfoResponse.from(meeting);
 

@@ -3,11 +3,8 @@ package org.dnd.timeet.agenda.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.agenda.application.AgendaService;
-import org.dnd.timeet.agenda.domain.Agenda;
 import org.dnd.timeet.agenda.dto.AgendaActionRequest;
 import org.dnd.timeet.agenda.dto.AgendaActionResponse;
 import org.dnd.timeet.agenda.dto.AgendaCreateRequest;
@@ -42,21 +39,18 @@ public class AgendaController {
         @PathVariable("meeting-id") Long meetingId,
         @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
-        Agenda savedAgenda = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
+        Long agendaId = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
 
-        return ResponseEntity.ok(ApiUtils.success(savedAgenda.getId()));
+        return ResponseEntity.ok(ApiUtils.success(agendaId));
     }
 
     @GetMapping("/{meeting-id}/agendas")
     @Operation(summary = "모든 안건 조회", description = "모든 안건을 조회한다.")
-    public ResponseEntity getAgendas(
+    public ResponseEntity<ApiResult<AgendaInfoResponse>> getAgendas(
         @PathVariable("meeting-id") Long meetingId) {
-        List<AgendaInfoResponse> agendaInfoResponseList = agendaService.findAll(meetingId)
-            .stream()
-            .map(a -> new AgendaInfoResponse(a, a.calculateCurrentDuration(), a.calculateRemainingTime()))
-            .collect(Collectors.toList());
+        AgendaInfoResponse response = agendaService.findAgendas(meetingId);
 
-        return ResponseEntity.ok(ApiUtils.success(agendaInfoResponseList));
+        return ResponseEntity.ok(ApiUtils.success(response));
     }
 
     /*
