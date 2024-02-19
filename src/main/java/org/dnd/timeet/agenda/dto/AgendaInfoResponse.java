@@ -45,10 +45,10 @@ public class AgendaInfoResponse {
         @Schema(description = "안건 종류", example = "AGENDA")
         private String type;
 
-        @Schema(description = "현재까지 소요된 시간", example = "00:36")
+        @Schema(description = "현재까지 소요된 시간", example = "00:36:00")
         private String currentDuration;
 
-        @Schema(description = "남은 시간", example = "00:24")
+        @Schema(description = "남은 시간", example = "00:24:00")
         private String remainingDuration;
 
         @Schema(description = "안건 상태", example = "INPROGRESS")
