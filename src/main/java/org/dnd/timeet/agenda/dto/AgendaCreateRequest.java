@@ -28,8 +28,8 @@ public class AgendaCreateRequest {
     private String type;
 
     @NotNull(message = "안건 소요 시간은 반드시 입력되어야 합니다")
-    @DateTimeFormat(pattern = "HH:mm")
-    @Schema(description = "안건 소요 시간", example = "01:20")
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    @Schema(description = "안건 소요 시간", example = "01:20:00")
     private LocalTime allocatedDuration;
 
     @NotNull(message = "안건 순서는 반드시 입력되어야 합니다")
