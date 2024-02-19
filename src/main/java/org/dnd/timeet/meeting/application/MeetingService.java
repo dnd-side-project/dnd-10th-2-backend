@@ -55,6 +55,16 @@ public class MeetingService {
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
         meeting.endMeeting();
+        // 회의에서 진행중인 안건들도 모두 종료되도록 하기
+        agendaRepository.findByMeetingId(meetingId)
+            .forEach(agenda -> {
+                if (agenda.getStatus().equals(AgendaStatus.INPROGRESS) ||
+                    agenda.getStatus().equals(AgendaStatus.PAUSED)) {
+                    agenda.complete();
+                } else if (agenda.getStatus().equals(AgendaStatus.PENDING)) {
+                    agenda.cancel();
+                }
+            });
     }
 
     public Meeting addParticipantToMeeting(Long meetingId, Member member) {

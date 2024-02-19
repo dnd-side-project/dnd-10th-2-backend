@@ -69,6 +69,7 @@ public class MeetingController {
     public ResponseEntity<ApiResult<MeetingReportResponse>> closeMeeting(
         @PathVariable("meeting-id") Long meetingId) {
         meetingService.endMeeting(meetingId);
+
         MeetingReportInfoResponse meetingReportInfoResponse = meetingService.createReport(meetingId);
         MeetingReportResponse meetingReportResponse = new MeetingReportResponse(meetingReportInfoResponse);
 
