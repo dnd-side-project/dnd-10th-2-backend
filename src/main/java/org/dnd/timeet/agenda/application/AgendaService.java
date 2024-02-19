@@ -99,7 +99,7 @@ public class AgendaService {
         Agenda agenda = agendaRepository.findByIdAndMeetingId(agendaId, meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("AgendaId", "Agenda not found")));
-        agenda.delete();
+        agenda.cancel();
     }
 
 
