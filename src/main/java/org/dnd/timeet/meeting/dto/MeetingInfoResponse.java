@@ -37,14 +37,17 @@ public class MeetingInfoResponse {
     @Schema(description = "회의 남은 시간", example = "00:03:00")
     private String remainingTime;
 
+    @Schema(description = "회의 실제 소요 시간", example = "03:03:00")
+    private String actualTotalDuration;
+
     @Schema(description = "썸네일 이미지 번호", example = "1")
     private Integer imgNum;
 
     @Builder
     public MeetingInfoResponse(Long meetingId, String title, String description, String meetingStatus,
                                Long hostMemberId,
-                               String startTime, Duration totalEstimatedDuration, String remainingTime,
-                               Integer imgNum) {
+                               String startTime, Duration totalEstimatedDuration, Duration remainingTime,
+                               Duration actualTotalDuration, Integer imgNum) {
         this.meetingId = meetingId;
         this.title = title;
         this.description = description;
@@ -52,7 +55,8 @@ public class MeetingInfoResponse {
         this.hostMemberId = hostMemberId;
         this.startTime = startTime;
         this.totalEstimatedDuration = DurationUtils.formatDuration(totalEstimatedDuration);
-        this.remainingTime = remainingTime;
+        this.remainingTime = DurationUtils.formatDuration(remainingTime);
+        this.actualTotalDuration = DurationUtils.formatDuration(actualTotalDuration);
         this.imgNum = imgNum;
     }
 
@@ -65,7 +69,8 @@ public class MeetingInfoResponse {
             .hostMemberId(meeting.getHostMember().getId())
             .startTime(meeting.getStartTime().toString())
             .totalEstimatedDuration(meeting.getTotalEstimatedDuration())
-            .remainingTime(DurationUtils.formatDuration(meeting.calculateRemainingTime()))
+            .remainingTime(meeting.calculateRemainingTime())
+            .actualTotalDuration(meeting.calculateCurrentDuration())
             .imgNum(meeting.getImgNum())
             .build();
     }
