@@ -32,15 +32,4 @@ public class MeetingAsyncService {
             logger.error("Error starting scheduled meeting", e);
         }
     }
-
-    @Transactional
-    @Async // 비동기 작업 실행시 발생하는 에러 처리
-    public void endScheduledMeeting(Meeting meeting) {
-        try {
-            meeting.endMeeting();
-            meetingRepository.save(meeting);
-        } catch (Exception e) {
-            logger.error("Error starting scheduled meeting", e);
-        }
-    }
 }

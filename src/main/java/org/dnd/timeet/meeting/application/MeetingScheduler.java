@@ -36,19 +36,4 @@ public class MeetingScheduler {
             meetingAsyncService.startScheduledMeeting(meetingId), delay, TimeUnit.MILLISECONDS);
     }
 
-    @Scheduled(fixedRate = 60000) // 60000ms = 1분
-    public void scheduleMeetingEnd() {
-        List<Meeting> meetingsByStatusInProgress = meetingRepository.findMeetingsByStatusInProgress();
-
-        LocalDateTime now = LocalDateTime.now();
-
-        meetingsByStatusInProgress.forEach(meeting -> {
-            // 남은 시간이 0이거나 음수인 경우 회의를 종료
-            Duration remainingTime = meeting.calculateRemainingTime();
-            if (remainingTime.isZero() || remainingTime.isNegative()) {
-                meetingAsyncService.endScheduledMeeting(meeting);
-            }
-        });
-    }
-
 }
