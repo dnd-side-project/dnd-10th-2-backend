@@ -130,4 +130,11 @@ public class MeetingController {
         return ResponseEntity.ok(ApiUtils.success(memberInfoListResponse));
     }
 
+    @DeleteMapping("/{meeting-id}/leave")
+    @Operation(summary = "회의실 나가기", description = "지정된 id에 해당하는 회의에서 나간다.")
+    public ResponseEntity leaveMeeting(@PathVariable("meeting-id") Long meetingId, @ReqUser Member member) {
+        meetingService.leaveMeeting(meetingId, member.getId());
+
+        return ResponseEntity.noContent().build();
+    }
 }

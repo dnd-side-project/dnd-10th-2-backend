@@ -18,7 +18,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -140,8 +139,14 @@ public class Meeting extends AuditableEntity {
 
         List<Member> participantsList = this.participants.stream()
             .map(Participant::getMember)
-            .collect(Collectors.toList());
+            .filter(member -> !member.equals(this.hostMember)) // 현재 방장 제외
+            .toList();
 
+        // 회의에 방장만 존재할 경우
+        if (participantsList.isEmpty()) {
+            this.hostMember = null;
+            return;
+        }
         // 랜덤 객체를 사용하여 참가자 목록에서 랜덤하게 하나를 선택
         Random random = new Random();
         int index = random.nextInt(participantsList.size());
@@ -189,6 +194,26 @@ public class Meeting extends AuditableEntity {
                 throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
                     Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
         }
+    }
+
+    public boolean isMemberParticipating(Member member) {
+        return this.participants.stream()
+            .anyMatch(participant -> participant.getMember().equals(member));
+    }
+
+    public Participant addParticipant(Member member) {
+        // 이미 참가중인 회원이라면 예외 발생
+        if (this.isMemberParticipating(member)) {
+            throw new BadRequestError(BadRequestError.ErrorCode.DUPLICATE_RESOURCE,
+                Collections.singletonMap("Member", "Member already participating in the meeting"));
+        }
+
+        // 회의에 아무도 없다면 방장으로 지정
+        if (this.participants.isEmpty()) {
+            this.assignHostMember(member);
+        }
+
+        return new Participant(this, member);
     }
 
 }
