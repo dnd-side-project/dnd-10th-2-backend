@@ -137,6 +137,12 @@ public class MeetingService {
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
+        // 회의에 참가자가 없는 경우 빈 리스트 반환
+        if (meeting.getParticipants().isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // 참가자 목록을 Member 객체의 리스트로 변환하여 반환
         return meeting.getParticipants().stream()
             .map(Participant::getMember)
             .collect(Collectors.toList());
