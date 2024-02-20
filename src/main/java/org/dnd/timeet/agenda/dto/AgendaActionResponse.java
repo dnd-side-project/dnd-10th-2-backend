@@ -35,8 +35,7 @@ public class AgendaActionResponse {
 
         this.currentDuration = DurationUtils.formatDuration(currentDuration);
         this.remainingDuration = DurationUtils.formatDuration(remainingDuration);
-
-        this.orderNum = agenda.getOrderNum();
+        
         this.timestamp = DateTimeUtils.formatLocalDateTime(LocalDateTime.now());
     }
 

@@ -75,6 +75,9 @@ public class Agenda extends AuditableEntity {
         this.orderNum = orderNum;
     }
 
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
+    }
 
     public void start() {
         validateTransition(AgendaStatus.PENDING);

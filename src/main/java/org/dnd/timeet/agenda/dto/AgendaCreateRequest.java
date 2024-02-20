@@ -32,17 +32,12 @@ public class AgendaCreateRequest {
     @Schema(description = "안건 소요 시간", example = "01:20:00")
     private LocalTime allocatedDuration;
 
-    @NotNull(message = "안건 순서는 반드시 입력되어야 합니다")
-    @Schema(description = "안건 순서", example = "1")
-    private Integer orderNum;
-
     public Agenda toEntity(Meeting meeting) {
         return Agenda.builder()
             .meeting(meeting)
             .title(this.title)
             .type(this.type.equals("AGENDA") ? AgendaType.AGENDA : AgendaType.BREAK)
             .allocatedDuration(DurationUtils.convertLocalTimeToDuration(this.allocatedDuration))
-            .orderNum(this.orderNum)
             .build();
     }
 }
