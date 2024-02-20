@@ -13,6 +13,8 @@ import org.dnd.timeet.agenda.dto.AgendaActionRequest;
 import org.dnd.timeet.agenda.dto.AgendaActionResponse;
 import org.dnd.timeet.agenda.dto.AgendaCreateRequest;
 import org.dnd.timeet.agenda.dto.AgendaInfoResponse;
+import org.dnd.timeet.agenda.dto.AgendaPatchRequest;
+import org.dnd.timeet.agenda.dto.AgendaPatchResponse;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.NotFoundError;
 import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
@@ -145,5 +147,27 @@ public class AgendaService {
         List<Agenda> agendaList = agendaRepository.findByMeetingId(meetingId);
 
         return new AgendaInfoResponse(meeting, agendaList);
+    }
+
+    public AgendaPatchResponse patchAgenda(Long meetingId, Long agendaId, AgendaPatchRequest patchRequest) {
+        // 회의 존재 여부만 확인
+        boolean meetingExists = meetingRepository.existsById(meetingId);
+        if (!meetingExists) {
+            throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found"));
+        }
+
+        Agenda agenda = agendaRepository.findByIdAndMeetingId(agendaId, meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("AgendaId", "Agenda not found")));
+        if (agenda.getStatus() != AgendaStatus.PENDING) {
+            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("AgendaStatus", "Agenda is not PENDING status"));
+        }
+
+        agenda.update(patchRequest.getTitle(),
+            DurationUtils.convertLocalTimeToDuration(patchRequest.getAllocatedDuration()), patchRequest.getOrderNum());
+
+        return new AgendaPatchResponse(agenda);
     }
 }
