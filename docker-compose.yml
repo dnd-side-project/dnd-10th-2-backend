@@ -20,9 +20,7 @@ services:
   application:
     container_name: backend
     restart: on-failure
-    build:
-      context: ./
-      dockerfile: Dockerfile
+    image: syw5141/dnd-10th-2-backend:latest
     ports:
       - "8080:8080"
     env_file:
