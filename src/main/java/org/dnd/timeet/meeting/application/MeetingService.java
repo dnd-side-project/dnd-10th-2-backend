@@ -18,6 +18,8 @@ import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse;
+import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse.MeetingMemberDetailResponse;
 import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.member.domain.Member;
@@ -132,20 +134,35 @@ public class MeetingService {
     }
 
     @Transactional(readOnly = true)
-    public List<Member> getMeetingMembers(Long meetingId) {
+    public MeetingMemberInfoResponse getMeetingMembers(Long meetingId) {
         Meeting meeting = meetingRepository.findByIdWithParticipantsAndMembers(meetingId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
         // 회의에 참가자가 없는 경우 빈 리스트 반환
         if (meeting.getParticipants().isEmpty()) {
-            return Collections.emptyList();
+            return new MeetingMemberInfoResponse(null, Collections.emptyList());
+        }
+
+        MeetingMemberDetailResponse hostResponse;
+        // 방장 정보 추출
+        if (meeting.getHostMember() == null) {
+            hostResponse = new MeetingMemberDetailResponse(null);
+        } else {
+            Member hostMember = memberRepository.findById(meeting.getHostMember().getId())
+                .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                    Collections.singletonMap("HostMemberId", "Host member not found")));
+            hostResponse = new MeetingMemberDetailResponse(hostMember);
         }
 
         // 참가자 목록을 Member 객체의 리스트로 변환하여 반환
-        return meeting.getParticipants().stream()
+        List<MeetingMemberDetailResponse> memberList = meeting.getParticipants().stream()
             .map(Participant::getMember)
-            .collect(Collectors.toList());
+            .filter(member -> !member.equals(meeting.getHostMember())) // 방장 제외
+            .map(MeetingMemberDetailResponse::new)
+            .toList();
+
+        return new MeetingMemberInfoResponse(hostResponse, memberList);
     }
 
     @Transactional(readOnly = true)
