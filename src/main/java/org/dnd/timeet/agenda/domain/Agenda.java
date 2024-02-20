@@ -158,10 +158,9 @@ public class Agenda extends AuditableEntity {
         this.delete();
     }
 
-    public void update(String title, Duration allocatedDuration, Integer orderNum) {
+    public void update(String title, Duration allocatedDuration) {
         this.title = title;
         this.allocatedDuration = allocatedDuration;
-        this.orderNum = orderNum;
     }
 
 }

@@ -47,13 +47,6 @@ public class AgendaService {
                 Collections.singletonMap("MemberId", "Member is not a participant of the meeting"));
         }
 
-        // OrderNum 중복 검사
-        boolean isOrderNumExists = agendaRepository.existsByMeetingIdAndOrderNum(meetingId, createDto.getOrderNum());
-        if (isOrderNumExists) {
-            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
-                Collections.singletonMap("OrderNum", "OrderNum already exists in the meeting"));
-        }
-
         Agenda agenda = createDto.toEntity(meeting);
         agenda = agendaRepository.save(agenda);
 
@@ -188,7 +181,7 @@ public class AgendaService {
         }
 
         agenda.update(patchRequest.getTitle(),
-            DurationUtils.convertLocalTimeToDuration(patchRequest.getAllocatedDuration()), patchRequest.getOrderNum());
+            DurationUtils.convertLocalTimeToDuration(patchRequest.getAllocatedDuration()));
 
         return new AgendaPatchResponse(agenda);
     }

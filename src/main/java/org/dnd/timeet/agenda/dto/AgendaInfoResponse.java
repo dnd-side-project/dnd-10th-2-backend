@@ -54,9 +54,6 @@ public class AgendaInfoResponse {
         @Schema(description = "안건 상태", example = "INPROGRESS")
         private String status;
 
-        @Schema(description = "안건 순서 번호", example = "1")
-        private Integer orderNum;
-
         public AgendaResponse(Agenda agenda, Duration currentDuration, Duration remainingDuration) {
             this.agendaId = agenda.getId();
             this.title = agenda.getTitle();
@@ -64,7 +61,6 @@ public class AgendaInfoResponse {
             this.currentDuration = DurationUtils.formatDuration(currentDuration);
             this.remainingDuration = DurationUtils.formatDuration(remainingDuration);
             this.status = agenda.getStatus().name();
-            this.orderNum = agenda.getOrderNum();
         }
     }
 }

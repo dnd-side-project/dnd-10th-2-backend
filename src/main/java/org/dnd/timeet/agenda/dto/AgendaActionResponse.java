@@ -24,7 +24,6 @@ public class AgendaActionResponse {
     private String currentDuration; // 현재까지 진행된 시간
     private String remainingDuration; // 남은 시간
 
-    private Integer orderNum;
     private String timestamp; // 수정 시간
 
     public AgendaActionResponse(Agenda agenda, Duration currentDuration, Duration remainingDuration) {
@@ -36,7 +35,6 @@ public class AgendaActionResponse {
         this.currentDuration = DurationUtils.formatDuration(currentDuration);
         this.remainingDuration = DurationUtils.formatDuration(remainingDuration);
 
-        this.orderNum = agenda.getOrderNum();
         this.timestamp = DateTimeUtils.formatLocalDateTime(LocalDateTime.now());
     }
 

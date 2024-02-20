@@ -22,14 +22,10 @@ public class AgendaPatchResponse {
     @Schema(description = "안건 소요 시간", example = "01:20:00")
     private String allocatedDuration;
 
-    @Schema(description = "안건 순서", example = "1")
-    private Integer orderNum;
-
     public AgendaPatchResponse(Agenda agenda) {
         this.agendaId = agenda.getId();
         this.title = agenda.getTitle();
         this.allocatedDuration = DurationUtils.formatDuration(agenda.getAllocatedDuration());
-        this.orderNum = agenda.getOrderNum();
     }
 
 }

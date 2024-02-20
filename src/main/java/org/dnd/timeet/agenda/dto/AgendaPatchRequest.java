@@ -19,7 +19,4 @@ public class AgendaPatchRequest {
     @DateTimeFormat(pattern = "HH:mm:ss")
     @Schema(description = "안건 소요 시간", example = "01:20:00")
     private LocalTime allocatedDuration;
-
-    @Schema(description = "안건 순서", example = "1")
-    private Integer orderNum;
 }
