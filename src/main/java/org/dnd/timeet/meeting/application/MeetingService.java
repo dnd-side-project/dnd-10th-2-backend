@@ -54,6 +54,11 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
+        // 회의의 방장이 존재하는지 확인
+        if (meeting.getHostMember() == null) {
+            throw new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("HostMemberId", "Host member not found"));
+        }
         // 회의의 방장인지 확인
         if (!Objects.equals(meeting.getHostMember().getId(), memberId)) {
             throw new ForbiddenError(ForbiddenError.ErrorCode.ROLE_BASED_ACCESS_ERROR,
@@ -174,16 +179,19 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
-        memberRepository.findById(memberId)
-            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
-                Collections.singletonMap("MemberId", "Member not found")));
+
+        boolean memberExists = memberRepository.existsById(memberId);
+        if (!memberExists) {
+            throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found"));
+        }
 
         Participant participant = participantRepository.findByMeetingIdAndMemberId(meetingId, memberId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("ParticipantId", "Participant not found")));
 
         // 방장이 나가는 경우 새로운 방장 지정
-        if (meeting.getHostMember().getId().equals(memberId)) {
+        if (meeting.getHostMember() == null || meeting.getHostMember().getId().equals(memberId)) {
             meeting.assignNewHostRandomly();
             meetingRepository.save(meeting);
         }

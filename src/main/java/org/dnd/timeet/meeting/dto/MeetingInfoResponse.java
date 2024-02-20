@@ -5,6 +5,7 @@ import java.time.Duration;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.dnd.timeet.common.utils.DateTimeUtils;
 import org.dnd.timeet.common.utils.DurationUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 
@@ -28,7 +29,7 @@ public class MeetingInfoResponse {
     @Schema(description = "회의 방장 멤버 ID", example = "13")
     private Long hostMemberId;
 
-    @Schema(description = "회의 시작 일자", example = "2024-01-11T13:20")
+    @Schema(description = "회의 시작 일자", example = "2024-01-11T13:20:00")
     private String startTime;
 
     @Schema(description = "예상 소요시간", example = "03:00:00")
@@ -67,7 +68,7 @@ public class MeetingInfoResponse {
             .description(meeting.getDescription())
             .meetingStatus(meeting.getStatus().name())
             .hostMemberId(meeting.getHostMember() == null ? null : meeting.getHostMember().getId())
-            .startTime(meeting.getStartTime().toString())
+            .startTime(DateTimeUtils.formatLocalDateTime(meeting.getStartTime()))
             .totalEstimatedDuration(meeting.getTotalEstimatedDuration())
             .remainingTime(meeting.calculateRemainingTime())
             .actualTotalDuration(meeting.calculateCurrentDuration())

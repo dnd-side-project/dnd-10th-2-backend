@@ -22,6 +22,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.dnd.timeet.agenda.domain.Agenda;
 import org.dnd.timeet.common.domain.AuditableEntity;
 import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.BadRequestError.ErrorCode;
@@ -87,9 +88,12 @@ public class Meeting extends AuditableEntity {
         this.imgNum = imgNum;
     }
 
-
-    public void startMeeting() {
-        this.status = MeetingStatus.INPROGRESS;
+    public void updateStartTimeOnFirstAgendaStart(Agenda agenda) {
+        if (agenda.getOrderNum() == 1) {
+            // 회의 시작
+            this.startTime = LocalDateTime.now();
+            this.status = MeetingStatus.INPROGRESS;
+        }
     }
 
     // 회의 종료 버튼 누르거나 소요 시간이 끝날 경우

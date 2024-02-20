@@ -41,9 +41,18 @@ public class AgendaService {
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
         // 회의에 참가한 멤버인지 확인
-        participantRepository.findByMeetingIdAndMemberId(meetingId, member.getId())
-            .orElseThrow(() -> new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
-                Collections.singletonMap("MemberId", "Member is not a participant of the meeting")));
+        boolean isParticipantExists = participantRepository.existsByMeetingIdAndMemberId(meetingId, member.getId());
+        if (!isParticipantExists) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("MemberId", "Member is not a participant of the meeting"));
+        }
+
+        // OrderNum 중복 검사
+        boolean isOrderNumExists = agendaRepository.existsByMeetingIdAndOrderNum(meetingId, createDto.getOrderNum());
+        if (isOrderNumExists) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("OrderNum", "OrderNum already exists in the meeting"));
+        }
 
         Agenda agenda = createDto.toEntity(meeting);
         agenda = agendaRepository.save(agenda);
@@ -61,6 +70,10 @@ public class AgendaService {
     }
 
     public AgendaActionResponse changeAgendaStatus(Long meetingId, Long agendaId, AgendaActionRequest actionRequest) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
         Agenda agenda = agendaRepository.findByIdAndMeetingId(agendaId, meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("AgendaId", "Agenda not found")));
@@ -75,31 +88,40 @@ public class AgendaService {
                 Collections.singletonMap("Action", "Invalid action"));
         }
 
+        // 안건 시작 요청 전 첫 번째 안건이 시작되었는지 확인
+        if (action == AgendaAction.START && agenda.getOrderNum() != 1) {
+            // 첫 번째 안건의 시작 여부 확인
+            boolean isFirstAgendaStarted = agendaRepository.existsByMeetingIdAndOrderNumAndStatus(
+                meetingId, 1, AgendaStatus.COMPLETED);
+
+            if (!isFirstAgendaStarted) {
+                throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                    Collections.singletonMap("AgendaOrder", "First agenda has not been started yet"));
+            }
+        }
+
         switch (action) {
-            case START:
+            case START -> {
+                // 첫번째 안건의 시작 시간을 회의 시작 시간으로 설정
+                meeting.updateStartTimeOnFirstAgendaStart(agenda);
                 agenda.start();
-                break;
-            case PAUSE:
-                agenda.pause();
-                break;
-            case RESUME:
-                agenda.resume();
-                break;
-            case END:
-                agenda.complete();
-                break;
-            case MODIFY:
+            }
+            case PAUSE -> agenda.pause();
+            case RESUME -> agenda.resume();
+            case END -> agenda.complete();
+            case MODIFY -> {
                 LocalTime modifiedDuration = LocalTime.parse(actionRequest.getModifiedDuration());
                 Duration duration = DurationUtils.convertLocalTimeToDuration(modifiedDuration);
                 agenda.extendDuration(duration);
                 // 회의 시간 추가
                 addMeetingTotalActualDuration(meetingId, duration);
-                break;
-            default:
-                throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
-                    Collections.singletonMap("Action", "Invalid action"));
+            }
+            default -> throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("Action", "Invalid action"));
         }
+        // 변경 사항 저장
         Agenda savedAgenda = agendaRepository.save(agenda);
+        meetingRepository.save(meeting);
 
         Duration currentDuration = savedAgenda.calculateCurrentDuration();
         Duration remainingDuration = agenda.calculateRemainingTime();
