@@ -19,7 +19,12 @@ services:
 
   application:
     container_name: backend
-    restart: on-failure
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+        delay: 3s
+
     image: syw5141/dnd-10th-2-backend:latest
     ports:
       - "8080:8080"
