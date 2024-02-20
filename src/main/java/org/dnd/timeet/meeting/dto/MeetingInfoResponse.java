@@ -66,7 +66,7 @@ public class MeetingInfoResponse {
             .title(meeting.getTitle())
             .description(meeting.getDescription())
             .meetingStatus(meeting.getStatus().name())
-            .hostMemberId(meeting.getHostMember().getId())
+            .hostMemberId(meeting.getHostMember() == null ? null : meeting.getHostMember().getId())
             .startTime(meeting.getStartTime().toString())
             .totalEstimatedDuration(meeting.getTotalEstimatedDuration())
             .remainingTime(meeting.calculateRemainingTime())
