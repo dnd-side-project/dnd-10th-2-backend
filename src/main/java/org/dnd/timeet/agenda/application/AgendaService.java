@@ -157,6 +157,11 @@ public class AgendaService {
                 Collections.singletonMap("MeetingId", "Meeting not found")));
         List<Agenda> agendaList = agendaRepository.findByMeetingId(meetingId);
 
+        if (agendaList.size() != agendaIds.size()) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("AgendaIds", "Agenda Ids size is not matched"));
+        }
+
         if (agendaList.size() != agendaIds.stream().distinct().count()) {
             throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
                 Collections.singletonMap("AgendaIds", "Agenda Ids are not unique"));
