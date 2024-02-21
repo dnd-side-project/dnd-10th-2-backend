@@ -40,7 +40,7 @@ public class MeetingMemberInfoResponse {
         private String nickname;
 
         @Schema(description = "이미지 번호(1~12 사이 랜덤)", nullable = false, example = "2")
-        private Long imageNum;
+        private Integer imageNum;
 
 
         public MeetingMemberDetailResponse(Member member) {

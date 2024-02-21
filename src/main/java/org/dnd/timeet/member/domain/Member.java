@@ -52,12 +52,12 @@ public class Member extends BaseEntity {
     private Set<Participant> participations = new HashSet<>();
 
     @Column(nullable = false, name = "image_num")
-    private Long imageNum = new Random().nextLong(12) + 1;
+    private Integer imageNum = new Random().nextInt(12) + 1;
 
     @Builder
     public Member(MemberRole role, String name, String imageUrl, String oauthId, OAuth2Provider provider,
                   String fcmToken,
-                  Set<Participant> participations, Long imageNum) {
+                  Set<Participant> participations, Integer imageNum) {
         this.role = role;
         this.name = name;
         this.imageUrl = imageUrl;
