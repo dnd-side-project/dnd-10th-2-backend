@@ -2,7 +2,6 @@ package org.dnd.timeet.meeting.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import java.util.Random;
 import lombok.Getter;
 import lombok.Setter;
 import org.dnd.timeet.member.domain.Member;
@@ -47,7 +46,7 @@ public class MeetingMemberInfoResponse {
         public MeetingMemberDetailResponse(Member member) {
             this.id = member == null ? null : member.getId();
             this.nickname = member == null ? null : member.getName();
-            this.imageNum = new Random().nextLong(12) + 1;
+            this.imageNum = member.getImageNum();
         }
     }
 }
