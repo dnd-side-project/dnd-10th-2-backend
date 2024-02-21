@@ -161,5 +161,10 @@ public class Agenda extends AuditableEntity {
         this.delete();
     }
 
+    public void update(String title, Duration allocatedDuration) {
+        this.title = title;
+        this.allocatedDuration = allocatedDuration;
+    }
+
 }
 

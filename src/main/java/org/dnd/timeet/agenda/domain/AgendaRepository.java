@@ -9,4 +9,9 @@ public interface AgendaRepository extends JpaRepository<Agenda, Long> {
     List<Agenda> findByMeetingId(Long meetingId);
 
     Optional<Agenda> findByIdAndMeetingId(Long agendaId, Long meetingId);
+
+    boolean existsByMeetingIdAndOrderNum(Long meetingId, Integer orderNum);
+
+    boolean existsByMeetingIdAndOrderNumAndStatus(Long meetingId, Integer orderNum, AgendaStatus status);
+
 }

@@ -8,5 +8,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findById(Long id);
 
-    Optional<Member> findByOauthId(Long oauthId);
+    Optional<Member> findByOauthId(String oauthId);
 }
