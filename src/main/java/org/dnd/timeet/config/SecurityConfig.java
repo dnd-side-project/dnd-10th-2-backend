@@ -161,7 +161,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
-        configuration.addAllowedOriginPattern("*");
+        configuration.addAllowedOrigin(frontlocalurl);
+        configuration.addAllowedOrigin("https://timeet.vercel.app");
+//        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
         configuration.addExposedHeader("Authorization"); // 권고사항
 
@@ -188,7 +190,7 @@ public class SecurityConfig {
 //        return source;
 //    }
 //
-//    // 운영 환경용 CORS 설정
+    // 운영 환경용 CORS 설정
 //    @Bean
 //    @Profile("prod")
 //    public CorsConfigurationSource prodCorsConfigurationSource() {
