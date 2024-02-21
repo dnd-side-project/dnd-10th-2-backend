@@ -12,8 +12,8 @@ public class DurationUtils {
      * @return Duration 객체
      */
     public static Duration convertLocalTimeToDuration(LocalTime time) {
-        int totalMinutes = time.getHour() * 60 + time.getMinute();
-        return Duration.ofMinutes(totalMinutes);
+        int totalSeconds = time.toSecondOfDay(); // 시, 분, 초를 모두 초 단위로 변환
+        return Duration.ofSeconds(totalSeconds); // 변환된 초를 바탕으로 Duration 생성
     }
 
     /**
