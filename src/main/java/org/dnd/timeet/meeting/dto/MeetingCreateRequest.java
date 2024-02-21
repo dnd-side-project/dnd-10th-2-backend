@@ -27,16 +27,16 @@ public class MeetingCreateRequest {
     private String location;
 
     @NotNull(message = "회의 시작 시간은 반드시 입력되어야 합니다")
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    @Schema(description = "회의 시작 시간", example = "2024-01-11T13:20")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @Schema(description = "회의 시작 시간", example = "2024-01-11T13:20:00")
     private LocalDateTime startTime;
 
     @Schema(description = "회의 목표", example = "2개의 사안 모두 해결하기")
     private String description;
 
     @NotNull(message = "예상 소요 시간은 반드시 입력되어야 합니다")
-    @DateTimeFormat(pattern = "HH:mm")
-    @Schema(description = "예상 소요 시간", example = "02:00")
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    @Schema(description = "예상 소요 시간", example = "02:00:00")
     private LocalTime estimatedTotalDuration;
 
     @NotNull(message = "썸네일은 반드시 입력되어야 합니다")

@@ -20,7 +20,7 @@ public class AgendaReportInfoResponse {
     @Schema(description = "안건 제목", example = "안건1")
     private String title;
 
-    @Schema(description = "소요 시간 차이 (실제 소요 시간 - 예상 소요 시간)", example = "+01:30")
+    @Schema(description = "소요 시간 차이 (실제 소요 시간 - 예상 소요 시간)", example = "+01:30:00")
     private String diff;
 
 
