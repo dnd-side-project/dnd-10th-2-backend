@@ -2,6 +2,7 @@ package org.dnd.timeet.oauth.application;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.common.exception.InternalServerError;
 import org.dnd.timeet.common.security.CustomUserDetails;
@@ -77,6 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .role(MemberRole.ROLE_USER)
                 .provider(oauth2Provider)
                 .oauthId(userInfo.getId())
+                .imageNum(new Random().nextInt(12) + 1)
                 .build()
         );
     }
