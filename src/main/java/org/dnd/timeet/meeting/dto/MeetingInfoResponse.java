@@ -5,6 +5,7 @@ import java.time.Duration;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import org.dnd.timeet.common.utils.DateTimeUtils;
 import org.dnd.timeet.common.utils.DurationUtils;
 import org.dnd.timeet.meeting.domain.Meeting;
 
@@ -28,17 +29,14 @@ public class MeetingInfoResponse {
     @Schema(description = "회의 방장 멤버 ID", example = "13")
     private Long hostMemberId;
 
-    @Schema(description = "회의 시작 일자", example = "2024-01-11T13:20")
+    @Schema(description = "회의 시작 일자", example = "2024-01-11T13:20:00")
     private String startTime;
 
     @Schema(description = "예상 소요시간", example = "03:00:00")
     private String totalEstimatedDuration;
 
-    @Schema(description = "회의 남은 시간", example = "00:03:00")
-    private String remainingTime;
-
-    @Schema(description = "회의 실제 소요 시간", example = "03:03:00")
-    private String actualTotalDuration;
+    @Schema(description = "회의 소요 시간", example = "03:03:00")
+    private String currentDuration;
 
     @Schema(description = "썸네일 이미지 번호", example = "1")
     private Integer imgNum;
@@ -46,8 +44,8 @@ public class MeetingInfoResponse {
     @Builder
     public MeetingInfoResponse(Long meetingId, String title, String description, String meetingStatus,
                                Long hostMemberId,
-                               String startTime, Duration totalEstimatedDuration, Duration remainingTime,
-                               Duration actualTotalDuration, Integer imgNum) {
+                               String startTime, Duration totalEstimatedDuration,
+                               Duration currentDuration, Integer imgNum) {
         this.meetingId = meetingId;
         this.title = title;
         this.description = description;
@@ -55,8 +53,7 @@ public class MeetingInfoResponse {
         this.hostMemberId = hostMemberId;
         this.startTime = startTime;
         this.totalEstimatedDuration = DurationUtils.formatDuration(totalEstimatedDuration);
-        this.remainingTime = DurationUtils.formatDuration(remainingTime);
-        this.actualTotalDuration = DurationUtils.formatDuration(actualTotalDuration);
+        this.currentDuration = DurationUtils.formatDuration(currentDuration);
         this.imgNum = imgNum;
     }
 
@@ -66,11 +63,10 @@ public class MeetingInfoResponse {
             .title(meeting.getTitle())
             .description(meeting.getDescription())
             .meetingStatus(meeting.getStatus().name())
-            .hostMemberId(meeting.getHostMember().getId())
-            .startTime(meeting.getStartTime().toString())
+            .hostMemberId(meeting.getHostMember() == null ? null : meeting.getHostMember().getId())
+            .startTime(DateTimeUtils.formatLocalDateTime(meeting.getStartTime()))
             .totalEstimatedDuration(meeting.getTotalEstimatedDuration())
-            .remainingTime(meeting.calculateRemainingTime())
-            .actualTotalDuration(meeting.calculateCurrentDuration())
+            .currentDuration(meeting.calculateCurrentDuration())
             .imgNum(meeting.getImgNum())
             .build();
     }

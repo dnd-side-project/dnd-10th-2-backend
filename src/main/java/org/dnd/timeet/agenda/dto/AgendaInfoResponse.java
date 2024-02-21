@@ -17,14 +17,14 @@ public class AgendaInfoResponse {
     @Schema(description = "회의 id", example = "12L")
     private Long meetingId;
 
-    @Schema(description = "회의 남은 시간", example = "00:03:00")
-    private String remainingTime;
+    @Schema(description = "회의 소요 시간", example = "00:03:00")
+    private String currentDuration;
 
     private List<AgendaResponse> agendaResponse;
 
     public AgendaInfoResponse(Meeting meeting, List<Agenda> agendaList) {
         this.meetingId = meeting.getId();
-        this.remainingTime = DurationUtils.formatDuration(meeting.calculateRemainingTime());
+        this.currentDuration = DurationUtils.formatDuration(meeting.calculateCurrentDuration());
         this.agendaResponse = agendaList.stream()
             .map(agenda -> new AgendaResponse(agenda, agenda.calculateCurrentDuration(),
                 agenda.calculateRemainingTime()))

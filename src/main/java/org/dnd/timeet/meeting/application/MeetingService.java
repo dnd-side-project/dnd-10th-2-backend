@@ -12,16 +12,18 @@ import org.dnd.timeet.agenda.domain.AgendaRepository;
 import org.dnd.timeet.agenda.domain.AgendaStatus;
 import org.dnd.timeet.agenda.domain.AgendaType;
 import org.dnd.timeet.agenda.dto.AgendaReportInfoResponse;
-import org.dnd.timeet.common.exception.BadRequestError;
 import org.dnd.timeet.common.exception.ForbiddenError;
 import org.dnd.timeet.common.exception.NotFoundError;
 import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
-import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
+import org.dnd.timeet.meeting.dto.MeetingCurrentDurationResponse;
+import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse;
+import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse.MeetingMemberDetailResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.member.domain.Member;
+import org.dnd.timeet.member.domain.MemberRepository;
 import org.dnd.timeet.participant.domain.Participant;
 import org.dnd.timeet.participant.domain.ParticipantRepository;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class MeetingService {
     private final MeetingRepository meetingRepository;
     private final ParticipantRepository participantRepository;
     private final AgendaRepository agendaRepository;
-    private final MeetingScheduler meetingScheduler;
+    private final MemberRepository memberRepository;
 
 
     public Meeting createMeeting(MeetingCreateRequest createDto, Member member) {
@@ -45,9 +47,6 @@ public class MeetingService {
         Participant participant = new Participant(meeting, member);
         participantRepository.save(participant);
 
-        // 스케줄러를 통해 회의 시작 시간에 회의 시작
-        meetingScheduler.scheduleMeetingStart(meeting.getId(), meeting.getStartTime());
-
         return meeting;
     }
 
@@ -55,6 +54,11 @@ public class MeetingService {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
+        // 회의의 방장이 존재하는지 확인
+        if (meeting.getHostMember() == null) {
+            throw new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("HostMemberId", "Host member not found"));
+        }
         // 회의의 방장인지 확인
         if (!Objects.equals(meeting.getHostMember().getId(), memberId)) {
             throw new ForbiddenError(ForbiddenError.ErrorCode.ROLE_BASED_ACCESS_ERROR,
@@ -79,23 +83,7 @@ public class MeetingService {
             .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
-        // 멤버가 이미 회의에 참가하고 있는지 확인
-        boolean alreadyParticipating = meeting.getParticipants().stream()
-            .anyMatch(participant -> participant.getMember().equals(member));
-
-        if (alreadyParticipating) {
-            // 에러 메세지 발생
-            throw new BadRequestError(BadRequestError.ErrorCode.DUPLICATE_RESOURCE,
-                Collections.singletonMap("Member", "Member already participating in the meeting"));
-        }
-
-        // Participant 인스턴스 생성 및 저장
-        Participant participant = new Participant(meeting, member);
-        participantRepository.save(participant);
-
-        // 양방향 연관관계 설정
-        meeting.getParticipants().add(participant);
-        member.getParticipations().add(participant);
+        participantRepository.save(meeting.addParticipant(member));
 
         return meeting;
     }
@@ -147,23 +135,77 @@ public class MeetingService {
     }
 
     @Transactional(readOnly = true)
-    public List<Member> getMeetingMembers(Long meetingId) {
+    public MeetingMemberInfoResponse getMeetingMembers(Long meetingId, Long memberId) {
         Meeting meeting = meetingRepository.findByIdWithParticipantsAndMembers(meetingId)
-            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
-        return meeting.getParticipants().stream()
+        boolean memberExists = memberRepository.existsById(memberId);
+        if (!memberExists) {
+            throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found"));
+        }
+
+        // 회의에 참가자가 없는 경우 빈 리스트 반환
+        if (meeting.getParticipants().isEmpty()) {
+            return new MeetingMemberInfoResponse(Collections.emptyList(), null, false);
+        }
+
+        // 참가자 목록을 Member 객체의 리스트로 변환하여 반환
+        List<MeetingMemberDetailResponse> memberList = meeting.getParticipants().stream()
             .map(Participant::getMember)
-            .collect(Collectors.toList());
+            .filter(member -> !member.equals(meeting.getHostMember())) // 방장 제외
+            .map(MeetingMemberDetailResponse::new)
+            .toList();
+
+        MeetingMemberDetailResponse hostResponse;
+        // 방장 정보 추출
+        if (meeting.getHostMember() == null) {
+            hostResponse = new MeetingMemberDetailResponse(null);
+
+            return new MeetingMemberInfoResponse(memberList, hostResponse, false);
+        } else {
+            Member hostMember = memberRepository.findById(meeting.getHostMember().getId())
+                .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                    Collections.singletonMap("HostMemberId", "Host member not found")));
+            hostResponse = new MeetingMemberDetailResponse(hostMember);
+
+            return new MeetingMemberInfoResponse(memberList, hostResponse, hostMember.getId().equals(memberId));
+        }
+
     }
 
     @Transactional(readOnly = true)
-    public MeetingRemainingTimeResponse getRemainingTime(Long meetingId) {
+    public MeetingCurrentDurationResponse getCurrentDuration(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
-        return MeetingRemainingTimeResponse.from(meeting);
+        return MeetingCurrentDurationResponse.from(meeting);
     }
 
+    public void leaveMeeting(Long meetingId, Long memberId) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        boolean memberExists = memberRepository.existsById(memberId);
+        if (!memberExists) {
+            throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found"));
+        }
+
+        Participant participant = participantRepository.findByMeetingIdAndMemberId(meetingId, memberId)
+            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("ParticipantId", "Participant not found")));
+
+        // 방장이 나가는 경우 새로운 방장 지정
+        if (meeting.getHostMember() == null || meeting.getHostMember().getId().equals(memberId)) {
+            meeting.assignNewHostRandomly();
+            meetingRepository.save(meeting);
+        }
+
+        participant.removeParticipant();
+        participantRepository.save(participant);
+    }
 }

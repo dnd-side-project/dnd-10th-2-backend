@@ -10,7 +10,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class AgendaActionRequest {
+
     private String action;
-    private String modifiedDuration; // "HH:MM" 형식, optional
+    private String modifiedDuration;
 
 }

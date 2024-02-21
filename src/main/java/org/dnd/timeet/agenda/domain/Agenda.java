@@ -75,6 +75,9 @@ public class Agenda extends AuditableEntity {
         this.orderNum = orderNum;
     }
 
+    public void setOrderNum(Integer orderNum) {
+        this.orderNum = orderNum;
+    }
 
     public void start() {
         validateTransition(AgendaStatus.PENDING);
@@ -99,6 +102,15 @@ public class Agenda extends AuditableEntity {
     public void extendDuration(Duration extension) {
         if (this.status != AgendaStatus.COMPLETED) {
             this.allocatedDuration = this.allocatedDuration.plus(extension);
+        }
+    }
+
+    public void reduceDuration(Duration reduction) {
+        if (this.status != AgendaStatus.COMPLETED && this.allocatedDuration.compareTo(reduction) > 0) {
+            this.allocatedDuration = this.allocatedDuration.minus(reduction);
+        } else {
+            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("AgendaDuration", "Invalid duration reduction"));
         }
     }
 
@@ -156,6 +168,11 @@ public class Agenda extends AuditableEntity {
     public void cancel() {
         this.status = AgendaStatus.CANCELED;
         this.delete();
+    }
+
+    public void update(String title, Duration allocatedDuration) {
+        this.title = title;
+        this.allocatedDuration = allocatedDuration;
     }
 
 }

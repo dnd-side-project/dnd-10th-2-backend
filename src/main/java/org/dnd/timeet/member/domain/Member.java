@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -38,7 +39,7 @@ public class Member extends BaseEntity {
     private String imageUrl;
 
     @Column(length = 100, nullable = false, name = "oauth_id")
-    private Long oauthId;
+    private String oauthId;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
@@ -46,18 +47,25 @@ public class Member extends BaseEntity {
 
     @Column(length = 255)
     private String fcmToken;
-  
+
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private Set<Participant> participations = new HashSet<>();
 
-    // MEMO : 필수값들이므로 final 붙임
+    @Column(nullable = false, name = "image_num")
+    private Integer imageNum = new Random().nextInt(12) + 1;
+
     @Builder
-    public Member(MemberRole role, String name, String imageUrl, Long oauthId, OAuth2Provider provider) {
+    public Member(MemberRole role, String name, String imageUrl, String oauthId, OAuth2Provider provider,
+                  String fcmToken,
+                  Set<Participant> participations, Integer imageNum) {
         this.role = role;
         this.name = name;
         this.imageUrl = imageUrl;
         this.oauthId = oauthId;
         this.provider = provider;
+        this.fcmToken = fcmToken;
+        this.participations = participations;
+        this.imageNum = imageNum;
     }
 
 
