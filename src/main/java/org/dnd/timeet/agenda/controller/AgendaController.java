@@ -9,6 +9,7 @@ import org.dnd.timeet.agenda.dto.AgendaActionRequest;
 import org.dnd.timeet.agenda.dto.AgendaActionResponse;
 import org.dnd.timeet.agenda.dto.AgendaCreateRequest;
 import org.dnd.timeet.agenda.dto.AgendaInfoResponse;
+import org.dnd.timeet.agenda.dto.AgendaOrderRequest;
 import org.dnd.timeet.agenda.dto.AgendaPatchRequest;
 import org.dnd.timeet.agenda.dto.AgendaPatchResponse;
 import org.dnd.timeet.common.security.CustomUserDetails;
@@ -83,6 +84,16 @@ public class AgendaController {
         agendaService.cancelAgenda(meetingId, agendaId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{meeting-id}/agendas/order")
+    @Operation(summary = "안건 순서 변경", description = "안건의 순서를 변경한다.")
+    public ResponseEntity<ApiResult<AgendaInfoResponse>> changeAgendaOrder(
+        @PathVariable("meeting-id") Long meetingId,
+        @RequestBody @Valid AgendaOrderRequest agendaOrderRequest) {
+        AgendaInfoResponse agendaInfoResponse = agendaService.changeAgendaOrder(meetingId,
+            agendaOrderRequest.getAgendaIds());
+        return ResponseEntity.ok(ApiUtils.success(agendaInfoResponse));
     }
 
     @PatchMapping("/{meeting-id}/agendas/{agenda-id}")

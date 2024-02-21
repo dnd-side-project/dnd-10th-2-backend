@@ -3,6 +3,7 @@ package org.dnd.timeet.agenda.application;
 import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.dnd.timeet.agenda.domain.Agenda;
@@ -35,6 +36,7 @@ public class AgendaService {
     private final AgendaRepository agendaRepository;
     private final ParticipantRepository participantRepository;
 
+    @Transactional
     public Long createAgenda(Long meetingId, AgendaCreateRequest createDto, Member member) {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
@@ -48,6 +50,8 @@ public class AgendaService {
         }
 
         Agenda agenda = createDto.toEntity(meeting);
+        List<Agenda> agendaList = agendaRepository.findByMeetingId(meetingId);
+        agenda.setOrderNum(agendaList.size() + 1);
         agenda = agendaRepository.save(agenda);
 
         // 회의 시간 추가
@@ -160,6 +164,36 @@ public class AgendaService {
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
         List<Agenda> agendaList = agendaRepository.findByMeetingId(meetingId);
+        agendaList.sort(Comparator.comparing(Agenda::getOrderNum));
+        return new AgendaInfoResponse(meeting, agendaList);
+    }
+
+    public AgendaInfoResponse changeAgendaOrder(Long meetingId, List<Long> agendaIds) {
+        Meeting meeting = meetingRepository.findById(meetingId)
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MeetingId", "Meeting not found")));
+        List<Agenda> agendaList = agendaRepository.findByMeetingId(meetingId);
+
+        if (agendaList.size() != agendaIds.size()) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("AgendaIds", "Agenda Ids size is not matched"));
+        }
+
+        if (agendaList.size() != agendaIds.stream().distinct().count()) {
+            throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
+                Collections.singletonMap("AgendaIds", "Agenda Ids are not unique"));
+        }
+
+        for (int i = 0; i < agendaIds.size(); i++) {
+            Long agendaId = agendaIds.get(i);
+            Agenda agenda = agendaList.stream()
+                .filter(a -> a.getId().equals(agendaId))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                    Collections.singletonMap("AgendaId", "Agenda Id " + agendaId + " not found")));
+            agenda.setOrderNum(i + 1);
+        }
+        agendaList.sort(Comparator.comparing(Agenda::getOrderNum));
 
         return new AgendaInfoResponse(meeting, agendaList);
     }
