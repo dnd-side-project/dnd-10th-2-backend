@@ -1,7 +1,7 @@
 package org.dnd.timeet.agenda.domain;
 
 public enum AgendaAction {
-    START, PAUSE, RESUME, END, MODIFY;
+    START, PAUSE, RESUME, END, EXTEND, REDUCE;
 
     @Override
     public String toString() {
