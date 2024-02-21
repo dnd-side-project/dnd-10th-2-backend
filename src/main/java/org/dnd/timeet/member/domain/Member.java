@@ -38,7 +38,7 @@ public class Member extends BaseEntity {
     private String imageUrl;
 
     @Column(length = 100, nullable = false, name = "oauth_id")
-    private Long oauthId;
+    private String oauthId;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50, nullable = false)
@@ -46,13 +46,13 @@ public class Member extends BaseEntity {
 
     @Column(length = 255)
     private String fcmToken;
-  
+
     @OneToMany(mappedBy = "member", fetch = FetchType.EAGER)
     private Set<Participant> participations = new HashSet<>();
 
     // MEMO : 필수값들이므로 final 붙임
     @Builder
-    public Member(MemberRole role, String name, String imageUrl, Long oauthId, OAuth2Provider provider) {
+    public Member(MemberRole role, String name, String imageUrl, String oauthId, OAuth2Provider provider) {
         this.role = role;
         this.name = name;
         this.imageUrl = imageUrl;

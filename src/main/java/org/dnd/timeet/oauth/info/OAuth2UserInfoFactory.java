@@ -2,6 +2,7 @@ package org.dnd.timeet.oauth.info;
 
 import java.util.Map;
 import org.dnd.timeet.oauth.OAuth2Provider;
+import org.dnd.timeet.oauth.info.impl.GoogleOAuth2UserInfo;
 import org.dnd.timeet.oauth.info.impl.KakaoOAuth2UserInfo;
 
 public class OAuth2UserInfoFactory {
@@ -14,7 +15,7 @@ public class OAuth2UserInfoFactory {
                                                    Map<String, Object> attributes) {
 
         if (oauth2Provider == OAuth2Provider.GOOGLE) {
-            return null;
+            return new GoogleOAuth2UserInfo(attributes);
         }
         if (oauth2Provider == OAuth2Provider.NAVER) {
             return null;
