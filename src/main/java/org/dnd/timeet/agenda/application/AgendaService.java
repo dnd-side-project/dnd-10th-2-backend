@@ -106,12 +106,19 @@ public class AgendaService {
             case PAUSE -> agenda.pause();
             case RESUME -> agenda.resume();
             case END -> agenda.complete();
-            case MODIFY -> {
+            case EXTEND -> {
                 LocalTime modifiedDuration = LocalTime.parse(actionRequest.getModifiedDuration());
                 Duration duration = DurationUtils.convertLocalTimeToDuration(modifiedDuration);
                 agenda.extendDuration(duration);
                 // 회의 시간 추가
                 addMeetingTotalActualDuration(meetingId, duration);
+            }
+            case REDUCE -> {
+                LocalTime modifiedDuration = LocalTime.parse(actionRequest.getModifiedDuration());
+                Duration duration = DurationUtils.convertLocalTimeToDuration(modifiedDuration);
+                agenda.reduceDuration(duration);
+                // 회의 시간 감소
+                subtractMeetingTotalActualDuration(meetingId, duration);
             }
             default -> throw new BadRequestError(BadRequestError.ErrorCode.VALIDATION_FAILED,
                 Collections.singletonMap("Action", "Invalid action"));

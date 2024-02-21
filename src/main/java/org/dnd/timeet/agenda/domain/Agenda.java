@@ -105,6 +105,15 @@ public class Agenda extends AuditableEntity {
         }
     }
 
+    public void reduceDuration(Duration reduction) {
+        if (this.status != AgendaStatus.COMPLETED && this.allocatedDuration.compareTo(reduction) > 0) {
+            this.allocatedDuration = this.allocatedDuration.minus(reduction);
+        } else {
+            throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
+                Collections.singletonMap("AgendaDuration", "Invalid duration reduction"));
+        }
+    }
+
     public void complete() {
         validateTransition(AgendaStatus.INPROGRESS, AgendaStatus.PAUSED);
 

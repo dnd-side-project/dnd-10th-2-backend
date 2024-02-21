@@ -12,9 +12,9 @@ import org.dnd.timeet.meeting.application.MeetingService;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.meeting.dto.MeetingCreateResponse;
+import org.dnd.timeet.meeting.dto.MeetingCurrentDurationResponse;
 import org.dnd.timeet.meeting.dto.MeetingInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse;
-import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportResponse;
 import org.dnd.timeet.member.domain.Member;
@@ -85,12 +85,12 @@ public class MeetingController {
         return ResponseEntity.ok(ApiUtils.success(meetingInfoResponse));
     }
 
-    @Operation(summary = "남은 시간 조회", description = "웹소켓을 통해 특정 회의의 남은 시간을 조회한다.")
-    @MessageMapping("/meeting/{meeting-id}/remaining-time")
-    @SendTo("/topic/meeting/{meeting-id}/remaining-time")
-    public ResponseEntity<ApiResult<MeetingRemainingTimeResponse>> getRemainingTime(
+    @Operation(summary = "소요 시간 조회", description = "웹소켓을 통해 회의의 소요 시간을 조회한다.")
+    @MessageMapping("/meeting/{meeting-id}/current-duration")
+    @SendTo("/topic/meeting/{meeting-id}/current-duration")
+    public ResponseEntity<ApiResult<MeetingCurrentDurationResponse>> getCurrentDuration(
         @DestinationVariable("meeting-id") Long meetingId) {
-        MeetingRemainingTimeResponse response = meetingService.getRemainingTime(meetingId);
+        MeetingCurrentDurationResponse response = meetingService.getCurrentDuration(meetingId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
@@ -116,8 +116,9 @@ public class MeetingController {
     @GetMapping("/{meeting-id}/users")
     @Operation(summary = "회의 참가자 조회", description = "회의에 참가한 사용자를 조회한다.")
     public ResponseEntity<ApiResult<MeetingMemberInfoResponse>> getMeetingMembers(
-        @PathVariable("meeting-id") Long meetingId) {
-        MeetingMemberInfoResponse response = meetingService.getMeetingMembers(meetingId);
+        @PathVariable("meeting-id") Long meetingId,
+        @ReqUser Member member) {
+        MeetingMemberInfoResponse response = meetingService.getMeetingMembers(meetingId, member.getId());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }
