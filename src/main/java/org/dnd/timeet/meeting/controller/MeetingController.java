@@ -116,8 +116,9 @@ public class MeetingController {
     @GetMapping("/{meeting-id}/users")
     @Operation(summary = "회의 참가자 조회", description = "회의에 참가한 사용자를 조회한다.")
     public ResponseEntity<ApiResult<MeetingMemberInfoResponse>> getMeetingMembers(
-        @PathVariable("meeting-id") Long meetingId) {
-        MeetingMemberInfoResponse response = meetingService.getMeetingMembers(meetingId);
+        @PathVariable("meeting-id") Long meetingId,
+        @ReqUser Member member) {
+        MeetingMemberInfoResponse response = meetingService.getMeetingMembers(meetingId, member.getId());
 
         return ResponseEntity.ok(ApiUtils.success(response));
     }

@@ -6,18 +6,27 @@ import lombok.Getter;
 import lombok.Setter;
 import org.dnd.timeet.member.domain.Member;
 
-@Schema(description = "회의 멤버 정보 응답")
+@Schema(description = "회의 참가자 정보 응답")
 @Getter
 @Setter
 public class MeetingMemberInfoResponse {
 
-    MeetingMemberDetailResponse hostMember;
+    @Schema(description = "방장 제외 참가자 정보")
     List<MeetingMemberDetailResponse> members;
 
-    public MeetingMemberInfoResponse(MeetingMemberDetailResponse hostMember,
-                                     List<MeetingMemberDetailResponse> members) {
-        this.hostMember = hostMember;
+    @Schema(description = "방장 정보")
+    MeetingMemberDetailResponse hostMember;
+
+    @Schema(description = "방장 여부", example = "true")
+    boolean isHost;
+
+
+    public MeetingMemberInfoResponse(List<MeetingMemberDetailResponse> members,
+                                     MeetingMemberDetailResponse hostMember,
+                                     boolean isHost) {
         this.members = members;
+        this.hostMember = hostMember;
+        this.isHost = isHost;
     }
 
     @Getter

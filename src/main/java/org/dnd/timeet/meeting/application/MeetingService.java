@@ -135,25 +135,20 @@ public class MeetingService {
     }
 
     @Transactional(readOnly = true)
-    public MeetingMemberInfoResponse getMeetingMembers(Long meetingId) {
+    public MeetingMemberInfoResponse getMeetingMembers(Long meetingId, Long memberId) {
         Meeting meeting = meetingRepository.findByIdWithParticipantsAndMembers(meetingId)
-            .orElseThrow(() -> new NotFoundError(NotFoundError.ErrorCode.RESOURCE_NOT_FOUND,
+            .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
+
+        boolean memberExists = memberRepository.existsById(memberId);
+        if (!memberExists) {
+            throw new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                Collections.singletonMap("MemberId", "Member not found"));
+        }
 
         // 회의에 참가자가 없는 경우 빈 리스트 반환
         if (meeting.getParticipants().isEmpty()) {
-            return new MeetingMemberInfoResponse(null, Collections.emptyList());
-        }
-
-        MeetingMemberDetailResponse hostResponse;
-        // 방장 정보 추출
-        if (meeting.getHostMember() == null) {
-            hostResponse = new MeetingMemberDetailResponse(null);
-        } else {
-            Member hostMember = memberRepository.findById(meeting.getHostMember().getId())
-                .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
-                    Collections.singletonMap("HostMemberId", "Host member not found")));
-            hostResponse = new MeetingMemberDetailResponse(hostMember);
+            return new MeetingMemberInfoResponse(Collections.emptyList(), null, false);
         }
 
         // 참가자 목록을 Member 객체의 리스트로 변환하여 반환
@@ -163,7 +158,21 @@ public class MeetingService {
             .map(MeetingMemberDetailResponse::new)
             .toList();
 
-        return new MeetingMemberInfoResponse(hostResponse, memberList);
+        MeetingMemberDetailResponse hostResponse;
+        // 방장 정보 추출
+        if (meeting.getHostMember() == null) {
+            hostResponse = new MeetingMemberDetailResponse(null);
+
+            return new MeetingMemberInfoResponse(memberList, hostResponse, false);
+        } else {
+            Member hostMember = memberRepository.findById(meeting.getHostMember().getId())
+                .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
+                    Collections.singletonMap("HostMemberId", "Host member not found")));
+            hostResponse = new MeetingMemberDetailResponse(hostMember);
+
+            return new MeetingMemberInfoResponse(memberList, hostResponse, hostMember.getId().equals(memberId));
+        }
+
     }
 
     @Transactional(readOnly = true)
