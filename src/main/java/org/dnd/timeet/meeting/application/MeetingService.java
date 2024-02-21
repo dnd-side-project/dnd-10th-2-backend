@@ -18,9 +18,9 @@ import org.dnd.timeet.common.exception.NotFoundError.ErrorCode;
 import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.meeting.dto.MeetingCurrentDurationResponse;
 import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse;
 import org.dnd.timeet.meeting.dto.MeetingMemberInfoResponse.MeetingMemberDetailResponse;
-import org.dnd.timeet.meeting.dto.MeetingRemainingTimeResponse;
 import org.dnd.timeet.meeting.dto.MeetingReportInfoResponse;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.member.domain.MemberRepository;
@@ -167,12 +167,12 @@ public class MeetingService {
     }
 
     @Transactional(readOnly = true)
-    public MeetingRemainingTimeResponse getRemainingTime(Long meetingId) {
+    public MeetingCurrentDurationResponse getCurrentDuration(Long meetingId) {
         Meeting meeting = meetingRepository.findById(meetingId)
             .orElseThrow(() -> new NotFoundError(ErrorCode.RESOURCE_NOT_FOUND,
                 Collections.singletonMap("MeetingId", "Meeting not found")));
 
-        return MeetingRemainingTimeResponse.from(meeting);
+        return MeetingCurrentDurationResponse.from(meeting);
     }
 
     public void leaveMeeting(Long meetingId, Long memberId) {

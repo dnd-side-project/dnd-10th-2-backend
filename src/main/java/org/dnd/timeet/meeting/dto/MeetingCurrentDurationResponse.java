@@ -10,7 +10,7 @@ import org.dnd.timeet.meeting.domain.Meeting;
 @Schema(description = "회의 정보 응답")
 @Getter
 @Setter
-public class MeetingRemainingTimeResponse {
+public class MeetingCurrentDurationResponse {
 
     @Schema(description = "회의 id", example = "12L")
     private Long meetingId;
@@ -18,22 +18,22 @@ public class MeetingRemainingTimeResponse {
     @Schema(description = "회의 상태", example = "SCHEDULED")
     private String meetingStatus;
 
-    @Schema(description = "회의 남은 시간", example = "00:03:00")
-    private String remainingTime;
+    @Schema(description = "회의 소요 시간", example = "00:03:00")
+    private String currentDuration;
 
     @Builder
-    public MeetingRemainingTimeResponse(Long meetingId, String meetingStatus, String remainingTime) {
+    public MeetingCurrentDurationResponse(Long meetingId, String meetingStatus, String currentDuration) {
         this.meetingId = meetingId;
         this.meetingStatus = meetingStatus;
-        this.remainingTime = remainingTime;
+        this.currentDuration = currentDuration;
     }
 
-    public static MeetingRemainingTimeResponse from(Meeting meeting) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
-        return MeetingRemainingTimeResponse
+    public static MeetingCurrentDurationResponse from(Meeting meeting) { // 매개변수로부터 객체를 생성하는 팩토리 메서드
+        return MeetingCurrentDurationResponse
             .builder()
             .meetingId(meeting.getId())
             .meetingStatus(meeting.getStatus().name())
-            .remainingTime(DurationUtils.formatDuration(meeting.calculateRemainingTime()))
+            .currentDuration(DurationUtils.formatDuration(meeting.calculateCurrentDuration()))
             .build();
     }
 }

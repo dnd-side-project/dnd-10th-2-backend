@@ -35,11 +35,8 @@ public class MeetingInfoResponse {
     @Schema(description = "예상 소요시간", example = "03:00:00")
     private String totalEstimatedDuration;
 
-    @Schema(description = "회의 남은 시간", example = "00:03:00")
-    private String remainingTime;
-
-    @Schema(description = "회의 실제 소요 시간", example = "03:03:00")
-    private String actualTotalDuration;
+    @Schema(description = "회의 소요 시간", example = "03:03:00")
+    private String currentDuration;
 
     @Schema(description = "썸네일 이미지 번호", example = "1")
     private Integer imgNum;
@@ -47,8 +44,8 @@ public class MeetingInfoResponse {
     @Builder
     public MeetingInfoResponse(Long meetingId, String title, String description, String meetingStatus,
                                Long hostMemberId,
-                               String startTime, Duration totalEstimatedDuration, Duration remainingTime,
-                               Duration actualTotalDuration, Integer imgNum) {
+                               String startTime, Duration totalEstimatedDuration,
+                               Duration currentDuration, Integer imgNum) {
         this.meetingId = meetingId;
         this.title = title;
         this.description = description;
@@ -56,8 +53,7 @@ public class MeetingInfoResponse {
         this.hostMemberId = hostMemberId;
         this.startTime = startTime;
         this.totalEstimatedDuration = DurationUtils.formatDuration(totalEstimatedDuration);
-        this.remainingTime = DurationUtils.formatDuration(remainingTime);
-        this.actualTotalDuration = DurationUtils.formatDuration(actualTotalDuration);
+        this.currentDuration = DurationUtils.formatDuration(currentDuration);
         this.imgNum = imgNum;
     }
 
@@ -70,8 +66,7 @@ public class MeetingInfoResponse {
             .hostMemberId(meeting.getHostMember() == null ? null : meeting.getHostMember().getId())
             .startTime(DateTimeUtils.formatLocalDateTime(meeting.getStartTime()))
             .totalEstimatedDuration(meeting.getTotalEstimatedDuration())
-            .remainingTime(meeting.calculateRemainingTime())
-            .actualTotalDuration(meeting.calculateCurrentDuration())
+            .currentDuration(meeting.calculateCurrentDuration())
             .imgNum(meeting.getImgNum())
             .build();
     }
