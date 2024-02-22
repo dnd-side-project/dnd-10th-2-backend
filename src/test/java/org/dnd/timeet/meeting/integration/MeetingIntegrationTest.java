@@ -47,7 +47,6 @@ class MeetingIntegrationTest {
     @DisplayName("[GET] 타이머 조회 API 테스트")
     void getTimers() throws Exception {
 
-
         ResultActions perform = mvc.perform(
             get("/api/v1/timers")
                 .contentType(MediaType.APPLICATION_JSON)
