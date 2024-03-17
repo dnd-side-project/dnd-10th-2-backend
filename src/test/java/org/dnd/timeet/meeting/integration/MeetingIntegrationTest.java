@@ -9,11 +9,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import org.dnd.timeet.common.security.annotation.WithMockCustomUser;
 import org.dnd.timeet.meeting.application.MeetingService;
+import org.dnd.timeet.meeting.domain.Meeting;
+import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.member.domain.Member;
+import org.dnd.timeet.member.domain.MemberRepository;
+import org.dnd.timeet.member.domain.MemberRole;
+import org.dnd.timeet.oauth.OAuth2Provider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +48,38 @@ class MeetingIntegrationTest {
 
     @Autowired
     MeetingService meetingService;
+
+    @Autowired
+    MeetingRepository meetingRepository;
+
+    @Autowired
+    MemberRepository memberRepository;
+
+    public Long createTestMeeting(Member hostMember) {
+        Meeting meeting = Meeting.builder()
+            .hostMember(hostMember)
+            .title("테스트 회의")
+            .startTime(LocalDateTime.now().plusHours(1))
+            .totalEstimatedDuration(Duration.ofHours(1))
+            .location("테스트 회의실")
+            .description("테스트 설명")
+            .imgNum(1)
+            .build();
+        return meetingRepository.save(meeting).getId();
+    }
+
+    public Member createTestMember() {
+        return memberRepository.save(Member.builder()
+            .role(MemberRole.ROLE_USER)
+            .name("Test User")
+            .imageUrl("http://example.com/image.jpg")
+            .oauthId("oauth123")
+            .provider(OAuth2Provider.KAKAO)
+            .fcmToken("fcmToken123")
+            .imageNum(5)
+            .build());
+    }
+
 
     @Test
     @WithMockUser(username = "1", roles = "USER")
@@ -90,10 +129,10 @@ class MeetingIntegrationTest {
     @DisplayName("[POST] 회의 참가 API 테스트")
     void attendMeeting() throws Exception {
         // given
-
+        Long meetingId = createTestMeeting(createTestMember());
         // when
         ResultActions perform = mvc.perform(
-            post("/api/meetings/2/attend")
+            post("/api/meetings/" + meetingId + "/attend")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -108,10 +147,10 @@ class MeetingIntegrationTest {
     @DisplayName("[PATCH] 회의 종료 API 테스트 : 실패 - 방장이 아닐 경우")
     void closeMeeting() throws Exception {
         // given
-
+        Long meetingId = createTestMeeting(createTestMember());
         // when
         ResultActions perform = mvc.perform(
-            patch("/api/meetings/2/end")
+            patch("/api/meetings/" + meetingId + "/end")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -126,10 +165,10 @@ class MeetingIntegrationTest {
     @DisplayName("[GET] 단일 회의 조회 API 테스트")
     void getTimerById() throws Exception {
         // given
-
+        Long meetingId = createTestMeeting(createTestMember());
         // when
         ResultActions perform = mvc.perform(
-            get("/api/meetings/2")
+            get("/api/meetings/" + meetingId)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -158,10 +197,11 @@ class MeetingIntegrationTest {
     @DisplayName("[GET] 리포트 조회 API 테스트")
     void getMeetingReport() throws Exception {
         // given
+        Long meetingId = createTestMeeting(createTestMember());
 
         // when
         ResultActions perform = mvc.perform(
-            get("/api/meetings/2/report")
+            get("/api/meetings/" + meetingId + "/report")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -176,10 +216,11 @@ class MeetingIntegrationTest {
     @DisplayName("[DELETE] 회의 삭제 API 테스트")
     void deleteMeeting() throws Exception {
         // given
+        Long meetingId = createTestMeeting(createTestMember());
 
         // when
         ResultActions perform = mvc.perform(
-            delete("/api/meetings/2")
+            delete("/api/meetings/"+meetingId)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
