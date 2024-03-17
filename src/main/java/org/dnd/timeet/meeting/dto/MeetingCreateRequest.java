@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -42,6 +43,17 @@ public class MeetingCreateRequest {
     @NotNull(message = "썸네일은 반드시 입력되어야 합니다")
     @Schema(description = "썸네일 이미지 번호", example = "1")
     private Integer imageNum;
+
+    @Builder
+    public MeetingCreateRequest(String title, String location, LocalDateTime startTime, String description,
+                                LocalTime estimatedTotalDuration, Integer imageNum) {
+        this.title = title;
+        this.location = location;
+        this.startTime = startTime;
+        this.description = description;
+        this.estimatedTotalDuration = estimatedTotalDuration;
+        this.imageNum = imageNum;
+    }
 
     public Meeting toEntity(Member member) {
         return Meeting.builder()
