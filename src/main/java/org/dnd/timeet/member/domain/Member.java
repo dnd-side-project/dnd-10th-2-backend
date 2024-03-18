@@ -56,15 +56,13 @@ public class Member extends BaseEntity {
 
     @Builder
     public Member(MemberRole role, String name, String imageUrl, String oauthId, OAuth2Provider provider,
-                  String fcmToken,
-                  Set<Participant> participations, Integer imageNum) {
+                  String fcmToken, Integer imageNum) {
         this.role = role;
         this.name = name;
         this.imageUrl = imageUrl;
         this.oauthId = oauthId;
         this.provider = provider;
         this.fcmToken = fcmToken;
-        this.participations = participations;
         this.imageNum = imageNum;
     }
 
