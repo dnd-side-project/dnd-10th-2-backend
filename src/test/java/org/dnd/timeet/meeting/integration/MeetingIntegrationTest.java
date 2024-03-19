@@ -9,19 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import org.dnd.timeet.common.security.CustomUserDetails;
+import org.dnd.timeet.common.utils.TestUtil;
 import org.dnd.timeet.meeting.application.MeetingService;
-import org.dnd.timeet.meeting.domain.Meeting;
 import org.dnd.timeet.meeting.domain.MeetingRepository;
 import org.dnd.timeet.meeting.domain.MeetingStatus;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
 import org.dnd.timeet.member.domain.Member;
 import org.dnd.timeet.member.domain.MemberRepository;
-import org.dnd.timeet.member.domain.MemberRole;
-import org.dnd.timeet.oauth.OAuth2Provider;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -44,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @DisplayName("[API][Integration] 회의 API 테스트")
-class MeetingIntegrationTest {
+public class MeetingIntegrationTest {
 
     @Autowired
     MockMvc mvc;
@@ -65,40 +58,13 @@ class MeetingIntegrationTest {
 
     private Long memberId;
 
-
-    public Long createTestMeeting(Member hostMember) {
-        Meeting meeting = Meeting.builder()
-            .hostMember(hostMember)
-            .title("테스트 회의")
-            .startTime(LocalDateTime.now().plusHours(1))
-            .totalEstimatedDuration(Duration.ofHours(1))
-            .location("테스트 회의실")
-            .description("테스트 설명")
-            .imgNum(1)
-            .build();
-        return meetingRepository.save(meeting).getId();
-    }
-
-    public Member createTestMember() {
-        return memberRepository.save(Member.builder()
-            .role(MemberRole.ROLE_USER)
-            .name("Test User")
-            .imageUrl("http://example.com/image.jpg")
-            .oauthId("oauth123")
-            .provider(OAuth2Provider.KAKAO)
-            .fcmToken("fcmToken123")
-            .imageNum(5)
-            .build());
-    }
-
     @BeforeEach
     void setup() {
-        Member member = createTestMember();
-        UserDetails userDetails = new CustomUserDetails(member);
-        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        TestUtil testUtil = new TestUtil(memberRepository, meetingService, meetingRepository);
+        Member member = testUtil.createTestMember();
+        testUtil.setMemberAuthentication(member);
 
-        meetingId = createTestMeeting(member);
+        meetingId = testUtil.createTestMeeting(member);
         memberId = member.getId();
     }
 
@@ -155,7 +121,7 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @DisplayName("[POST] 회의 참가 API 테스트")
+    @DisplayName("[POST] 회의 참가 API 테스트 - 실패")
     void attendMeeting() throws Exception {
         // given
 
@@ -167,7 +133,7 @@ class MeetingIntegrationTest {
 
         // then
         perform
-            .andExpect(status().isOk())
+            .andExpect(status().isBadRequest())
             .andDo(print());
     }
 
@@ -275,7 +241,6 @@ class MeetingIntegrationTest {
     @DisplayName("[DELETE] 회의 나가기 API 테스트")
     void leaveMeeting() throws Exception {
         // given
-        attendMeeting();
 
         // when
         ResultActions perform = mvc.perform(
