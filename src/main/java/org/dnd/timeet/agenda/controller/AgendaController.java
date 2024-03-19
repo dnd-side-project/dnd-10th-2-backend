@@ -39,7 +39,7 @@ public class AgendaController {
 
     @PostMapping("/{meeting-id}/agendas")
     @Operation(summary = "안건(+쉬는시간) 생성", description = "안건(+쉬는시간)을 생성한다.")
-    public ResponseEntity<ApiResult<Long>> createMeeting(
+    public ResponseEntity<ApiResult<Long>> createAgenda(
         @PathVariable("meeting-id") Long meetingId,
         @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
         @AuthenticationPrincipal CustomUserDetails userDetails) {
