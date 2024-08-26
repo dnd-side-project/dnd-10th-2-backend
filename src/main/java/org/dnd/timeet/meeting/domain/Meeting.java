@@ -102,17 +102,12 @@ public class Meeting extends AuditableEntity {
 
         if (this.status == MeetingStatus.COMPLETED) {
             throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("MeetingId", "Meeting already completed"));
+                    Collections.singletonMap("MeetingId", "Meeting already completed"));
         }
 
         this.status = MeetingStatus.COMPLETED;
 
         Duration duration = Duration.between(startTime, endTime);
-
-        if (duration.getSeconds() > 24 * 3600) { // 하루를 초과하는 경우
-            throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("Meeting", "Meeting duration exceeds one day"));
-        }
 
         this.totalActualDuration = duration;
     }
@@ -125,7 +120,7 @@ public class Meeting extends AuditableEntity {
     public void updateStartTime(LocalDateTime startTime) {
         if (this.status != MeetingStatus.SCHEDULED) {
             throw new BadRequestError(BadRequestError.ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                Collections.singletonMap("Meeting", "MeetingStatus is not SCHEDULED"));
+                    Collections.singletonMap("Meeting", "MeetingStatus is not SCHEDULED"));
         }
         this.startTime = startTime;
     }
@@ -142,9 +137,9 @@ public class Meeting extends AuditableEntity {
         }
 
         List<Member> participantsList = this.participants.stream()
-            .map(Participant::getMember)
-            .filter(member -> !member.equals(this.hostMember)) // 현재 방장 제외
-            .toList();
+                .map(Participant::getMember)
+                .filter(member -> !member.equals(this.hostMember)) // 현재 방장 제외
+                .toList();
 
         // 회의에 방장만 존재할 경우
         if (participantsList.isEmpty()) {
@@ -175,10 +170,10 @@ public class Meeting extends AuditableEntity {
                 return this.totalActualDuration;
             case CANCELED:
                 throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+                        Collections.singletonMap("Meeting", "Meeting is CANCELED"));
             default:
                 throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+                        Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
         }
     }
 
@@ -193,23 +188,23 @@ public class Meeting extends AuditableEntity {
                 return Duration.ZERO;
             case CANCELED:
                 throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                    Collections.singletonMap("Meeting", "Meeting is CANCELED"));
+                        Collections.singletonMap("Meeting", "Meeting is CANCELED"));
             default:
                 throw new BadRequestError(ErrorCode.WRONG_REQUEST_TRANSMISSION,
-                    Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
+                        Collections.singletonMap("Meeting", "MeetingStatus is not valid"));
         }
     }
 
     public boolean isMemberParticipating(Member member) {
         return this.participants.stream()
-            .anyMatch(participant -> participant.getMember().equals(member));
+                .anyMatch(participant -> participant.getMember().equals(member));
     }
 
     public Participant addParticipant(Member member) {
         // 이미 참가중인 회원이라면 예외 발생
         if (this.isMemberParticipating(member)) {
             throw new BadRequestError(BadRequestError.ErrorCode.DUPLICATE_RESOURCE,
-                Collections.singletonMap("Member", "Member already participating in the meeting"));
+                    Collections.singletonMap("Member", "Member already participating in the meeting"));
         }
 
         // 회의에 아무도 없다면 방장으로 지정
