@@ -9,18 +9,31 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import org.dnd.timeet.common.security.annotation.WithMockCustomUser;
+import org.dnd.timeet.common.security.CustomUserDetails;
 import org.dnd.timeet.meeting.application.MeetingService;
+import org.dnd.timeet.meeting.domain.Meeting;
+import org.dnd.timeet.meeting.domain.MeetingRepository;
+import org.dnd.timeet.meeting.domain.MeetingStatus;
 import org.dnd.timeet.meeting.dto.MeetingCreateRequest;
+import org.dnd.timeet.member.domain.Member;
+import org.dnd.timeet.member.domain.MemberRepository;
+import org.dnd.timeet.member.domain.MemberRole;
+import org.dnd.timeet.oauth.OAuth2Provider;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -42,8 +55,65 @@ class MeetingIntegrationTest {
     @Autowired
     MeetingService meetingService;
 
+    @Autowired
+    MeetingRepository meetingRepository;
+
+    @Autowired
+    MemberRepository memberRepository;
+
+    private Long meetingId;
+
+    private Long memberId;
+
+
+    public Long createTestMeeting(Member hostMember) {
+        Meeting meeting = Meeting.builder()
+            .hostMember(hostMember)
+            .title("테스트 회의")
+            .startTime(LocalDateTime.now().plusHours(1))
+            .totalEstimatedDuration(Duration.ofHours(1))
+            .location("테스트 회의실")
+            .description("테스트 설명")
+            .imgNum(1)
+            .build();
+        return meetingRepository.save(meeting).getId();
+    }
+
+    public Member createTestMember() {
+        return memberRepository.save(Member.builder()
+            .role(MemberRole.ROLE_USER)
+            .name("Test User")
+            .imageUrl("http://example.com/image.jpg")
+            .oauthId("oauth123")
+            .provider(OAuth2Provider.KAKAO)
+            .fcmToken("fcmToken123")
+            .imageNum(5)
+            .build());
+    }
+
+    @BeforeEach
+    void setup() {
+        Member member = createTestMember();
+        UserDetails userDetails = new CustomUserDetails(member);
+        Authentication auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        meetingId = createTestMeeting(member);
+        memberId = member.getId();
+    }
+
+    @AfterEach
+    void cleanup() {
+        if (meetingId != null) {
+            meetingRepository.deleteById(meetingId);
+        }
+        if (memberId != null) {
+            memberRepository.deleteById(memberId);
+        }
+        SecurityContextHolder.clearContext();
+    }
+
     @Test
-    @WithMockUser(username = "1", roles = "USER")
     @DisplayName("[GET] 타이머 조회 API 테스트")
     void getTimers() throws Exception {
 
@@ -58,7 +128,6 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
     @DisplayName("[POST] 회의 생성 API 테스트")
     void createMeeting() throws Exception {
         // given
@@ -86,14 +155,13 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
     @DisplayName("[POST] 회의 참가 API 테스트")
     void attendMeeting() throws Exception {
         // given
 
         // when
         ResultActions perform = mvc.perform(
-            post("/api/meetings/2/attend")
+            post("/api/meetings/" + meetingId + "/attend")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -104,32 +172,30 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
-    @DisplayName("[PATCH] 회의 종료 API 테스트 : 실패 - 방장이 아닐 경우")
+    @DisplayName("[PATCH] 회의 종료 API 테스트")
     void closeMeeting() throws Exception {
         // given
 
         // when
         ResultActions perform = mvc.perform(
-            patch("/api/meetings/2/end")
+            patch("/api/meetings/" + meetingId + "/end")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
         // then
         perform
-            .andExpect(status().isForbidden())
+            .andExpect(status().isOk())
             .andDo(print());
     }
 
     @Test
-    @WithMockCustomUser
     @DisplayName("[GET] 단일 회의 조회 API 테스트")
     void getTimerById() throws Exception {
         // given
 
         // when
         ResultActions perform = mvc.perform(
-            get("/api/meetings/2")
+            get("/api/meetings/" + meetingId)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -137,14 +203,13 @@ class MeetingIntegrationTest {
         perform
             .andExpect(status().isOk())
             .andDo(print())
-            .andExpect(jsonPath("$.success").value(true));
-        // MEMO : 테스트 DB에 따라 반환되는 값이 달라질 수 있음
-//                .andExpect(jsonPath("$.response.description").value("2개의 사안 모두 해결하기"))
-//                .andExpect(jsonPath("$.response.meetingStatus").value("COMPLETED"))
-//                .andExpect(jsonPath("$.response.hostMemberId").value(1))
-//                .andExpect(jsonPath("$.response.startTime").value("2024-02-28T07:33:01"))
-//                .andExpect(jsonPath("$.response.totalEstimatedDuration").value("02:00:00"))
-//                .andExpect(jsonPath("$.response.imgNum").value(1));
+            .andExpect(jsonPath("$.success").value(true))
+            .andExpect(jsonPath("$.response.meetingId").value(meetingId))
+            .andExpect(jsonPath("$.response.hostMemberId").value(memberId))
+            .andExpect(jsonPath("$.response.title").value("테스트 회의"))
+            .andExpect(jsonPath("$.response.meetingStatus").value(MeetingStatus.SCHEDULED.name()))
+            .andExpect(jsonPath("$.response.description").value("테스트 설명"))
+            .andExpect(jsonPath("$.response.imgNum").value(1));
     }
 
     // TODO : 웹소켓 테스트
@@ -154,14 +219,13 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
     @DisplayName("[GET] 리포트 조회 API 테스트")
     void getMeetingReport() throws Exception {
         // given
 
         // when
         ResultActions perform = mvc.perform(
-            get("/api/meetings/2/report")
+            get("/api/meetings/" + meetingId + "/report")
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -172,14 +236,13 @@ class MeetingIntegrationTest {
     }
 
     @Test
-    @WithMockCustomUser
     @DisplayName("[DELETE] 회의 삭제 API 테스트")
     void deleteMeeting() throws Exception {
         // given
 
         // when
         ResultActions perform = mvc.perform(
-            delete("/api/meetings/2")
+            delete("/api/meetings/" + meetingId)
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
@@ -189,42 +252,40 @@ class MeetingIntegrationTest {
             .andDo(print());
     }
 
-    // MEMO: JWT 토큰 정보값 문제 때문에 테스트 불가
-//    @Test
-//    @WithMockCustomUser
-//    @DisplayName("[GET] 회의 참가자 조회 API 테스트")
-//    void getMeetingMembers() throws Exception {
-//        // given
-//
-//        // when
-//        ResultActions perform = mvc.perform(
-//            get("/api/meetings/4/users")
-//                .contentType(MediaType.APPLICATION_JSON)
-//        );
-//
-//        // then
-//        perform
-//            .andExpect(status().isOk())
-//            .andDo(print());
-//    }
+    @Test
+    @DisplayName("[GET] 회의 참가자 조회 API 테스트")
+    void getMeetingMembers() throws Exception {
+        // given
+
+        // when
+        ResultActions perform = mvc.perform(
+            get("/api/meetings/" + meetingId + "/users")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        perform
+            .andExpect(status().isOk())
+            .andDo(print());
+    }
 
     // MEMO: 테스트 환경에서 JWT 토큰을 통한 인증을 시뮬레이션하기 위해 Member 객체를 생성하고 있다.
     // 이 과정에서 Member 객체는 ID 없이 생성되는데, 테스트 중에 Member 객체의 ID가 필요한 경우가 있어 에러가 발생한다.
-//    @Test
-//    @WithMockCustomUser
-//    @DisplayName("[DELETE] 회의 나가기 API 테스트")
-//    void leaveMeeting() throws Exception {
-//        // given
-//
-//        // when
-//        ResultActions perform = mvc.perform(
-//            delete("/api/meetings/2/leave")
-//                .contentType(MediaType.APPLICATION_JSON)
-//        );
-//
-//        // then
-//        perform
-//            .andExpect(status().isNoContent()) // 204 No Content
-//            .andDo(print());
-//    }
+    @Test
+    @DisplayName("[DELETE] 회의 나가기 API 테스트")
+    void leaveMeeting() throws Exception {
+        // given
+        attendMeeting();
+
+        // when
+        ResultActions perform = mvc.perform(
+            delete("/api/meetings/" + meetingId + "/leave")
+                .contentType(MediaType.APPLICATION_JSON)
+        );
+
+        // then
+        perform
+            .andExpect(status().isNoContent()) // 204 No Content
+            .andDo(print());
+    }
 }
