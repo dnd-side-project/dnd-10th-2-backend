@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,12 +36,13 @@ public class AgendaController {
 
     private final AgendaService agendaService;
 
-    @PostMapping("/{meeting-id}/agendas")
     @Operation(summary = "안건(+쉬는시간) 생성", description = "안건(+쉬는시간)을 생성한다.")
+    @MessageMapping("/meeting/{meeting-id}/agendas/create")
+    @SendTo("/topic/meeting/{meeting-id}/agendas/create")
     public ResponseEntity<ApiResult<Long>> createMeeting(
-        @PathVariable("meeting-id") Long meetingId,
-        @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
-        @AuthenticationPrincipal CustomUserDetails userDetails) {
+            @DestinationVariable("meeting-id") Long meetingId,
+            @RequestBody @Valid AgendaCreateRequest agendaCreateRequest,
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
         Long agendaId = agendaService.createAgenda(meetingId, agendaCreateRequest, userDetails.getMember());
 
         return ResponseEntity.ok(ApiUtils.success(agendaId));
@@ -51,7 +51,7 @@ public class AgendaController {
     @GetMapping("/{meeting-id}/agendas")
     @Operation(summary = "모든 안건 조회", description = "모든 안건을 조회한다.")
     public ResponseEntity<ApiResult<AgendaInfoResponse>> getAgendas(
-        @PathVariable("meeting-id") Long meetingId) {
+            @PathVariable("meeting-id") Long meetingId) {
         AgendaInfoResponse response = agendaService.findAgendas(meetingId);
 
         return ResponseEntity.ok(ApiUtils.success(response));
@@ -79,8 +79,8 @@ public class AgendaController {
     @DeleteMapping("/{meeting-id}/agendas/{agenda-id}")
     @Operation(summary = "안건 삭제", description = "지정된 ID에 해당하는 안건을 삭제한다.")
     public ResponseEntity deleteAgenda(
-        @PathVariable("meeting-id") Long meetingId,
-        @PathVariable("agenda-id") Long agendaId) {
+            @PathVariable("meeting-id") Long meetingId,
+            @PathVariable("agenda-id") Long agendaId) {
         agendaService.cancelAgenda(meetingId, agendaId);
 
         return ResponseEntity.noContent().build();
@@ -89,19 +89,19 @@ public class AgendaController {
     @PatchMapping("/{meeting-id}/agendas/order")
     @Operation(summary = "안건 순서 변경", description = "안건의 순서를 변경한다.")
     public ResponseEntity<ApiResult<AgendaInfoResponse>> changeAgendaOrder(
-        @PathVariable("meeting-id") Long meetingId,
-        @RequestBody @Valid AgendaOrderRequest agendaOrderRequest) {
+            @PathVariable("meeting-id") Long meetingId,
+            @RequestBody @Valid AgendaOrderRequest agendaOrderRequest) {
         AgendaInfoResponse agendaInfoResponse = agendaService.changeAgendaOrder(meetingId,
-            agendaOrderRequest.getAgendaIds());
+                agendaOrderRequest.getAgendaIds());
         return ResponseEntity.ok(ApiUtils.success(agendaInfoResponse));
     }
 
     @PatchMapping("/{meeting-id}/agendas/{agenda-id}")
     @Operation(summary = "안건 수정", description = "지정된 ID에 해당하는 안건을 수정한다.")
     public ResponseEntity<ApiResult<AgendaPatchResponse>> deleteAgenda(
-        @PathVariable("meeting-id") Long meetingId,
-        @PathVariable("agenda-id") Long agendaId,
-        @RequestBody AgendaPatchRequest patchRequest) {
+            @PathVariable("meeting-id") Long meetingId,
+            @PathVariable("agenda-id") Long agendaId,
+            @RequestBody AgendaPatchRequest patchRequest) {
         AgendaPatchResponse response = agendaService.patchAgenda(meetingId, agendaId, patchRequest);
 
         return ResponseEntity.ok(ApiUtils.success(response));
