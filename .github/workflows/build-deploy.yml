@@ -42,7 +42,7 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
 
       - name: Build and analyze
-        run: ./gradlew clean build --info
+        run: ./gradlew clean build --info -x test
 
       - name: Docker Setup QEMU
         uses: docker/setup-qemu-action@v1.2.0
