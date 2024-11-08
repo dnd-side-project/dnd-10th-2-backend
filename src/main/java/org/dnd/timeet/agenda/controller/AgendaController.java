@@ -91,10 +91,9 @@ public class AgendaController {
         return agendaService.changeAgendaStatus(meetingId, agendaId, actionRequest);
     }
 
-    @DeleteMapping("/{meeting-id}/agendas/{agenda-id}")
     @Operation(summary = "안건 삭제", description = "지정된 ID에 해당하는 안건을 삭제한다.")
-    @MessageMapping("/meeting/{meeting-id}/agendas/{delete-id}")
-    @SendTo("/topic/meeting/{meeting-id}/delete/{delete-id}")
+    @MessageMapping("/meeting/{meeting-id}/agendas/{agenda-id}/delete")
+    @SendTo("/topic/meeting/{meeting-id}/delete/{agenda-id}/delete")
     public ResponseEntity deleteAgenda(
             @DestinationVariable("meeting-id") Long meetingId,
             @DestinationVariable("agenda-id") Long agendaId) {
