@@ -163,6 +163,7 @@ public class SecurityConfig {
         configuration.addAllowedMethod("*");
         configuration.addAllowedOrigin(frontlocalurl);
         configuration.addAllowedOrigin("https://timeet.vercel.app");
+        configuration.addAllowedOrigin("https://dnd-10th-2-frontend.vercel.app/");
         configuration.addAllowedOriginPattern("file*");
 //        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
