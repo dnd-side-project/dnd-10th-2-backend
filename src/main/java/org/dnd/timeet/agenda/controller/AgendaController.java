@@ -93,13 +93,13 @@ public class AgendaController {
 
     @Operation(summary = "안건 삭제", description = "지정된 ID에 해당하는 안건을 삭제한다.")
     @MessageMapping("/meeting/{meeting-id}/agendas/{agenda-id}/delete")
-    @SendTo("/topic/meeting/{meeting-id}/delete/{agenda-id}/delete")
+    @SendTo("/topic/meeting/{meeting-id}/agendas/{agenda-id}/delete")
     public ResponseEntity deleteAgenda(
             @DestinationVariable("meeting-id") Long meetingId,
             @DestinationVariable("agenda-id") Long agendaId) {
         agendaService.cancelAgenda(meetingId, agendaId);
 
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(ApiUtils.success(agendaId));
     }
 
     @Operation(summary = "안건 순서 변경", description = "안건의 순서를 변경한다.")
