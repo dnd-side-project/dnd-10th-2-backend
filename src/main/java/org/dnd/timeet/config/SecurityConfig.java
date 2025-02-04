@@ -162,8 +162,9 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedOrigin(frontlocalurl);
-        configuration.addAllowedOrigin("https://timeet.site");
-        configuration.addAllowedOrigin("https://dnd-10th-2-frontend.vercel.app");
+        configuration.addAllowedOrigin("https://www.timeet.site"); // Need to delete
+        configuration.addAllowedOrigin("https://timeet.site"); // Need to delete
+        configuration.addAllowedOrigin("https://dnd-10th-2-frontend.vercel.app"); // Need to delete
         configuration.addAllowedOriginPattern("file*");
 //        configuration.addAllowedOriginPattern("*");
         configuration.setAllowCredentials(true); // 클라이언트에서 쿠키 요청 허용
