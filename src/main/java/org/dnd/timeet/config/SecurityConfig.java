@@ -162,7 +162,7 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         configuration.addAllowedMethod("*");
         configuration.addAllowedOrigin(frontlocalurl);
-        configuration.addAllowedOrigin("https://timeet.vercel.app");
+        configuration.addAllowedOrigin("https://timeet.site");
         configuration.addAllowedOrigin("https://dnd-10th-2-frontend.vercel.app");
         configuration.addAllowedOriginPattern("file*");
 //        configuration.addAllowedOriginPattern("*");
